@@ -1,0 +1,86 @@
+/*
+  The CSS in this style tag is based off of Bear Blog's default CSS.
+  https://github.com/HermanMartinus/bearblog/blob/297026a877bc2ab2b3bdfbd6b9f7961c350917dd/templates/styles/blog/default.css
+  License MIT: https://github.com/HermanMartinus/bearblog/blob/master/LICENSE.md
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+@import "tailwindcss";
+
+@theme {
+	--color-neutral: #F3F2F1;
+	--color-dark: #201F1E;
+	--color-primary: #0078D4;
+	--color-secondary: #D83B01;
+	--color-accent: #107C10;
+	--font-poppins: 'Poppins', sans-serif;
+}
+
+
+@layer base {
+	html {
+		font-size: 16px;
+		font-family: var(--font-poppins);
+		background-color: var(--color-dark);
+		color: var(--color-neutral);
+	}
+	body {
+		@apply antialiased;
+	} 
+	
+	main {
+		@apply max-w-[80%] mx-auto px-4 py-8;
+	}
+
+ h1 {
+    @apply text-4xl font-bold mb-6 text-primary;
+  }
+
+  h2 {
+    @apply text-3xl font-semibold mb-5 text-primary;
+  }
+
+  h3 {
+    @apply text-2xl font-semibold mb-4 text-primary;
+  }
+
+  h4, h5, h6 {
+    @apply text-xl font-medium mb-3 text-primary;
+  }
+
+  p {
+    @apply text-base leading-relaxed mb-5 text-neutral-200;
+  }
+
+  a {
+    @apply text-primary hover:text-secondary underline underline-offset-2 transition-colors duration-200;
+  }
+  td, th {
+    border: 1px solid var(--color-neutral);
+    padding: 0.5rem;
+    text-align: left;
+  }
+
+  .prose ul {
+    @apply mb-10;
+    list-style: disc;
+    padding-left: 1.5rem;
+  } 
+
+  code {
+    @apply font-mono bg-neutral-800 text-green-300 px-1.5 py-0.5 rounded;
+  }
+
+  pre {
+    @apply bg-neutral-900 text-green-100 p-4 rounded mb-6 overflow-x-auto text-sm;
+  }
+
+  button {
+    @apply bg-primary hover:bg-secondary text-white px-5 py-2 rounded-xl shadow-md transition-colors duration-200;
+  }
+
+  blockquote {
+    @apply border-l-4 border-primary pl-4 italic text-neutral-300 mb-6;
+  }
+}

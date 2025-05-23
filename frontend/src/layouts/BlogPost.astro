@@ -1,0 +1,11 @@
+---
+import { render } from 'astro:content';
+import type { CollectionEntry} from 'astro:content';
+import BasePost from './BasePost.astro';
+type Props = CollectionEntry<'blog'>['data'];
+
+---
+
+<BasePost {...Astro.props}>
+	<slot />
+</BasePost>	
