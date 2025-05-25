@@ -20,7 +20,7 @@ export async function GET(context) {
 		title: SITE_TITLE,
 		description: SITE_DESCRIPTION,
 		site: context.site,
-		items: allitems.map((item) => ({
+		items: allItems.map((item) => ({
 			title: item.title,
 			description: item.description,
 			pubDate: item.pubDate,
