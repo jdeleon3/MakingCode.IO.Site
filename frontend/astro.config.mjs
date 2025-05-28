@@ -8,7 +8,6 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   site: 'https://makingcode.io',
   output: 'static',
-  trailingSlash: 'always',
   integrations: [mdx(), sitemap()],
 
   vite: {
