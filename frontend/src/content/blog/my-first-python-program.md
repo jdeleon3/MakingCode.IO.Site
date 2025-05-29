@@ -1,5 +1,5 @@
 ---
-title: 'My First Python Program - Hello World!'
+title: 'How To Get Started With Python'
 description: 'A step-by-step guide to setting up a python environment for a Hello, World example!'
 pubDate: '5/27/2025'
 heroImage: '/images/blog/hero-how-to-get-started-with-git.png'
