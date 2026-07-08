@@ -1,0 +1,83 @@
+---
+import { NAV_LINKS, CONTACT_PATH } from '../consts';
+import LogoMark from './LogoMark.astro';
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="sticky top-0 z-40 border-b border-(--color-border) bg-(--color-surface)/90 backdrop-blur">
+  <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
+    <a href="/" class="block aspect-[31/10] h-12 overflow-hidden sm:h-16">
+      <LogoMark class="h-full w-full text-(--color-ink)" />
+    </a>
+
+    <button
+      id="nav-toggle"
+      class="label-mono text-xs text-(--color-ink) sm:hidden"
+      aria-expanded="false"
+      aria-controls="nav-links"
+      aria-label="Toggle navigation"
+    >
+      Menu
+    </button>
+
+    <nav class="hidden items-center gap-8 sm:flex" aria-label="Primary">
+      {
+        NAV_LINKS.map((link) => (
+          <a
+            href={link.href}
+            class:list={[
+              'label-mono text-xs transition-colors hover:text-(--color-accent)',
+              currentPath === link.href
+                ? 'text-(--color-accent)'
+                : 'text-(--color-ink-muted)',
+            ]}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+      <a
+        href={CONTACT_PATH}
+        class="label-mono border border-(--color-accent) px-4 py-2 text-xs text-(--color-accent) transition-colors hover:bg-(--color-accent) hover:text-(--color-surface)"
+      >
+        Contact
+      </a>
+    </nav>
+  </div>
+
+  <nav
+    id="nav-links"
+    class="hidden flex-col gap-1 border-t border-(--color-border) px-6 py-4 sm:hidden"
+    aria-label="Primary mobile"
+  >
+    {
+      NAV_LINKS.map((link) => (
+        <a
+          href={link.href}
+          class:list={[
+            'label-mono py-2 text-xs',
+            currentPath === link.href ? 'text-(--color-accent)' : 'text-(--color-ink-muted)',
+          ]}
+        >
+          {link.label}
+        </a>
+      ))
+    }
+    <a href={CONTACT_PATH} class="label-mono py-2 text-xs text-(--color-accent)">
+      Contact
+    </a>
+  </nav>
+</header>
+
+<script>
+  const toggle = document.getElementById('nav-toggle');
+  const links = document.getElementById('nav-links');
+
+  toggle?.addEventListener('click', () => {
+    const isHidden = links?.classList.contains('hidden');
+    links?.classList.toggle('hidden', !isHidden);
+    links?.classList.toggle('flex', isHidden);
+    toggle.setAttribute('aria-expanded', String(isHidden));
+  });
+</script>

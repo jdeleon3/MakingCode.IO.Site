@@ -1,0 +1,28 @@
+---
+import FormattedDate from './FormattedDate.astro';
+
+interface Props {
+  href: string;
+  title: string;
+  description: string;
+  pubDate: Date;
+  tags?: string[];
+}
+
+const { href, title, description, pubDate, tags } = Astro.props;
+---
+
+<a
+  href={href}
+  class="corner-frame group flex flex-col gap-3 border border-(--color-border) bg-(--color-surface-raised) p-6 transition-colors hover:border-(--color-border-strong)"
+>
+  <h3 class="font-display text-lg font-semibold text-(--color-ink) group-hover:text-(--color-accent)">
+    {title}
+  </h3>
+  <p class="text-sm text-(--color-ink-muted)">{description}</p>
+  <div class="label-mono mt-auto flex flex-wrap items-center gap-3 pt-2 text-[11px] text-(--color-ink-muted)">
+    <FormattedDate date={pubDate} />
+    {tags?.map((tag) => <span class="border border-(--color-border) px-2 py-0.5">{tag}</span>)}
+  </div>
+  <slot />
+</a>

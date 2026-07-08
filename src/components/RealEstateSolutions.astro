@@ -1,0 +1,53 @@
+---
+import { getCollection } from 'astro:content';
+import Card from './Card.astro';
+
+const allProjects = await getCollection('projects');
+
+const realEstateProjects = allProjects
+  .filter(
+    (project) =>
+      project.data.featured || project.data.industry?.toLowerCase().includes('real estate'),
+  )
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+---
+
+{
+  realEstateProjects.length > 0 && (
+    <section class="relative border-b border-(--color-border) bg-(--color-surface-sunken)">
+      <div class="absolute inset-x-0 top-0 h-px bg-(--color-accent)" aria-hidden="true" />
+
+      <div class="mx-auto max-w-6xl px-6 py-24">
+        <div class="mb-12 flex flex-col gap-3 border-l-2 border-(--color-accent) pl-5 sm:max-w-xl">
+          <span class="label-mono text-xs text-(--color-accent)">Vertical Focus &mdash; Real Estate</span>
+          <h2 class="font-display text-3xl font-semibold text-(--color-ink) sm:text-4xl">
+            Purpose-built automation for brokerages that move fast.
+          </h2>
+          <p class="text-(--color-ink-muted)">
+            Lead routing, scheduling, and client communication systems shipped for real
+            brokerages &mdash; engineered for volume, not demos.
+          </p>
+        </div>
+
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {realEstateProjects.map((project) => (
+            <Card
+              href={`/projects/${project.id}/`}
+              title={project.data.title}
+              description={project.data.description}
+              pubDate={project.data.pubDate}
+              tags={project.data.tags}
+            >
+              {project.data.impact && (
+                <p class="mt-2 border-t border-(--color-border) pt-2 text-sm font-medium text-(--color-accent)">
+                  {project.data.impact}
+                </p>
+              )}
+            </Card>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}

@@ -1,0 +1,55 @@
+---
+import FormattedDate from './FormattedDate.astro';
+
+interface Props {
+  pubDate: Date;
+  updatedDate?: Date;
+  tags?: string[];
+  industry?: string;
+  techStack?: string[];
+  impact?: string;
+}
+
+const { pubDate, updatedDate, tags, industry, techStack, impact } = Astro.props;
+---
+
+<div class="flex flex-col gap-3 text-(--color-ink-muted)">
+  <div class="label-mono text-xs">
+    <FormattedDate date={pubDate} />
+    {
+      updatedDate && (
+        <span>
+          {' '}
+          &bull; Updated <FormattedDate date={updatedDate} />
+        </span>
+      )
+    }
+  </div>
+
+  {
+    (tags?.length || industry) && (
+      <div class="label-mono flex flex-wrap gap-2 text-[11px]">
+        {industry && (
+          <span class="border border-(--color-accent) px-2 py-0.5 text-(--color-accent)">
+            {industry}
+          </span>
+        )}
+        {tags?.map((tag) => (
+          <span class="border border-(--color-border) px-2 py-0.5">{tag}</span>
+        ))}
+      </div>
+    )
+  }
+
+  {
+    techStack?.length && (
+      <div class="label-mono flex flex-wrap gap-2 text-[11px]">
+        {techStack.map((tech) => (
+          <span class="bg-(--color-surface-raised) px-2 py-0.5">{tech}</span>
+        ))}
+      </div>
+    )
+  }
+
+  {impact && <p class="border-l-2 border-(--color-accent) pl-3 text-sm font-medium text-(--color-ink)">{impact}</p>}
+</div>

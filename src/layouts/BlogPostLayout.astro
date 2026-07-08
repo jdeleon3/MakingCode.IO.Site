@@ -1,0 +1,29 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import PostMeta from '../components/PostMeta.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  pubDate: Date;
+  updatedDate?: Date;
+  tags?: string[];
+}
+
+const { title, description, pubDate, updatedDate, tags } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <article class="mx-auto max-w-3xl px-6 py-20">
+    <header class="mb-10 flex flex-col gap-5 border-b border-(--color-border) pb-8">
+      <span class="label-mono text-xs text-(--color-accent)">Field Notes</span>
+      <h1 class="font-display text-3xl font-semibold leading-tight text-(--color-ink) sm:text-4xl">
+        {title}
+      </h1>
+      <PostMeta pubDate={pubDate} updatedDate={updatedDate} tags={tags} />
+    </header>
+    <div class="prose">
+      <slot />
+    </div>
+  </article>
+</BaseLayout>

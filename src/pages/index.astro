@@ -1,0 +1,54 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import RealEstateSolutions from '../components/RealEstateSolutions.astro';
+import Card from '../components/Card.astro';
+import { getCollection } from 'astro:content';
+import { CONTACT_PATH } from '../consts';
+
+const latestPosts = (await getCollection('blog'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+---
+
+<BaseLayout>
+  <Hero />
+  <RealEstateSolutions />
+
+  <section class="mx-auto max-w-6xl px-6 py-24">
+    <div class="mb-12 flex flex-col gap-2">
+      <span class="label-mono text-xs text-(--color-accent)">From the Blog</span>
+      <h2 class="font-display text-3xl font-semibold text-(--color-ink)">
+        Architectural trade-offs, explained.
+      </h2>
+    </div>
+
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        latestPosts.map((post) => (
+          <Card
+            href={`/blog/${post.id}/`}
+            title={post.data.title}
+            description={post.data.description}
+            pubDate={post.data.pubDate}
+            tags={post.data.tags}
+          />
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="border-t border-(--color-border) bg-(--color-surface-raised)">
+    <div class="mx-auto flex max-w-6xl flex-col items-center gap-6 px-6 py-24 text-center">
+      <h2 class="font-display max-w-xl text-3xl font-semibold text-(--color-ink)">
+        Ready to remove the manual work from your operation?
+      </h2>
+      <a
+        href={CONTACT_PATH}
+        class="label-mono bg-(--color-accent) px-6 py-3 text-xs text-(--color-surface) transition-transform hover:-translate-y-0.5"
+      >
+        Contact
+      </a>
+    </div>
+  </section>
+</BaseLayout>

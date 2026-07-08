@@ -1,0 +1,102 @@
+---
+// Progressively enhances every Shiki-rendered <pre class="astro-code"> on the
+// page with copy-to-clipboard and download-as-file icon buttons. Works for
+// any current or future markdown code block without needing per-post changes.
+---
+
+<script>
+  const EXTENSIONS: Record<string, string> = {
+    typescript: 'ts',
+    javascript: 'js',
+    jsx: 'jsx',
+    tsx: 'tsx',
+    json: 'json',
+    yaml: 'yml',
+    yml: 'yml',
+    bash: 'sh',
+    shell: 'sh',
+    sh: 'sh',
+    python: 'py',
+    html: 'html',
+    css: 'css',
+    astro: 'astro',
+    markdown: 'md',
+    sql: 'sql',
+    go: 'go',
+    rust: 'rs',
+    java: 'java',
+    c: 'c',
+    cpp: 'cpp',
+    csharp: 'cs',
+    ruby: 'rb',
+    php: 'php',
+  };
+
+  const ICONS = {
+    copy: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>',
+    check: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+    download: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 19h16"/></svg>',
+  };
+
+  function enhanceCodeBlocks() {
+    const blocks = document.querySelectorAll<HTMLPreElement>(
+      'pre.astro-code:not([data-copy-enhanced])',
+    );
+
+    blocks.forEach((pre, index) => {
+      pre.dataset.copyEnhanced = 'true';
+
+      const language = pre.dataset.language ?? 'text';
+      const extension = EXTENSIONS[language] ?? 'txt';
+
+      const toolbar = document.createElement('div');
+      toolbar.className = 'code-toolbar';
+
+      const copyBtn = document.createElement('button');
+      copyBtn.type = 'button';
+      copyBtn.className = 'code-icon-btn';
+      copyBtn.innerHTML = ICONS.copy;
+      copyBtn.setAttribute('aria-label', 'Copy code to clipboard');
+      copyBtn.title = 'Copy';
+
+      copyBtn.addEventListener('click', async () => {
+        const code = pre.querySelector('code')?.textContent ?? '';
+        try {
+          await navigator.clipboard.writeText(code);
+          copyBtn.innerHTML = ICONS.check;
+          copyBtn.dataset.copied = 'true';
+        } catch {
+          copyBtn.title = 'Press Ctrl+C to copy';
+        }
+        window.setTimeout(() => {
+          copyBtn.innerHTML = ICONS.copy;
+          delete copyBtn.dataset.copied;
+        }, 1800);
+      });
+
+      const downloadBtn = document.createElement('button');
+      downloadBtn.type = 'button';
+      downloadBtn.className = 'code-icon-btn';
+      downloadBtn.innerHTML = ICONS.download;
+      downloadBtn.setAttribute('aria-label', 'Download code as a file');
+      downloadBtn.title = 'Download';
+
+      downloadBtn.addEventListener('click', () => {
+        const code = pre.querySelector('code')?.textContent ?? '';
+        const blob = new Blob([code], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `snippet-${index + 1}.${extension}`;
+        link.click();
+        URL.revokeObjectURL(url);
+      });
+
+      toolbar.append(downloadBtn, copyBtn);
+      pre.appendChild(toolbar);
+    });
+  }
+
+  enhanceCodeBlocks();
+  document.addEventListener('astro:page-load', enhanceCodeBlocks);
+</script>

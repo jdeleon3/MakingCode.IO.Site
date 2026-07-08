@@ -1,0 +1,46 @@
+---
+import { SITE_DESCRIPTION, CONTACT_PATH } from '../consts';
+---
+
+<section class="relative overflow-hidden border-b border-(--color-border)">
+  <div class="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-28 sm:py-36">
+    <p class="label-mono fade-up text-xs text-(--color-accent)" style="animation-delay: 0ms;">
+      MakingCode &mdash; Systems Engineering
+    </p>
+
+    <h1
+      class="fade-up max-w-3xl font-display text-4xl font-semibold leading-[1.05] tracking-tight text-(--color-ink) sm:text-6xl"
+      style="animation-delay: 90ms;"
+    >
+      Automated systems built for operators who <em class="text-(--color-accent) italic">can't afford</em> downtime.
+    </h1>
+
+    <p
+      class="fade-up max-w-xl text-lg text-(--color-ink-muted)"
+      style="animation-delay: 180ms;"
+    >
+      {SITE_DESCRIPTION}
+    </p>
+
+    <div class="fade-up flex flex-wrap gap-4" style="animation-delay: 260ms;">
+      <a
+        href={CONTACT_PATH}
+        class="label-mono bg-(--color-accent) px-6 py-3 text-xs text-(--color-surface) transition-transform hover:-translate-y-0.5"
+      >
+        Contact
+      </a>
+      <a
+        href="/projects/"
+        class="label-mono border border-(--color-border-strong) px-6 py-3 text-xs text-(--color-ink) transition-colors hover:border-(--color-accent) hover:text-(--color-accent)"
+      >
+        View Projects
+      </a>
+    </div>
+  </div>
+
+  <div
+    class="pointer-events-none absolute inset-y-0 right-0 hidden w-1/3 border-l border-(--color-border) lg:block"
+    aria-hidden="true"
+  >
+  </div>
+</section>

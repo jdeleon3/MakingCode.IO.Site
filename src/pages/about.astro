@@ -1,0 +1,85 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { CONTACT_PATH } from '../consts';
+---
+
+<BaseLayout title="About" description="Enterprise roots. Automated execution. Who's building your infrastructure.">
+  <section class="mx-auto max-w-3xl px-6 py-24">
+    <span class="label-mono text-xs text-(--color-accent)">About</span>
+    <h1 class="font-display mb-8 mt-3 text-4xl font-semibold text-(--color-ink)">
+      Engineering, not guesswork.
+    </h1>
+    
+    <div class="prose">
+      <p>
+        I'm John DeLeon, the engineer behind MakingCode. I design and build automated systems for
+        businesses that run on reliability, not hype &mdash; real estate brokerages, service
+        operators, and teams who need software that works the same way at 2am as it does at 2pm.
+      </p>
+      <p>
+        I don't build superficial AI wrappers. I build deterministic, production-grade infrastructure 
+        for operators who cannot afford payload drops or unexpected downtime.
+      </p>
+
+      <hr class="my-12 border-(--color-border)" />
+
+      <h2 class="font-display mb-4 text-2xl font-semibold text-(--color-ink)">
+        Enterprise Roots. Automated Execution.
+      </h2>
+      <p>
+        Most automation architectures break under load because they lack defensive design. My approach 
+        is built on <strong>14 years of professional software engineering experience</strong> architecting 
+        high-availability backend systems, enterprise integration pipelines, and core business infrastructure.
+      </p>
+      <p>
+        When I design an automation workflow, I apply the same rigorous engineering standards required by 
+        enterprise systems:
+      </p>
+      <ul class="space-y-3 pl-5 list-disc my-6">
+        <li>
+          <strong>True Idempotency:</strong> Ensuring that if an API webhook fires three times due to a 
+          network stutter, your CRM doesn't get flooded with duplicate entries.
+        </li>
+        <li>
+          <strong>Defensive Error Routing:</strong> Building asynchronous "fail-loud" loops so that if an 
+          LLM returns a malformed payload, the data is quarantined and self-healed, never silently dropped.
+        </li>
+        <li>
+          <strong>Data Modeling Integrity:</strong> Constructing clean relational schemas behind the scenes 
+          so your automated tools seamlessly feed your long-term reporting metrics.
+        </li>
+      </ul>
+
+      <hr class="my-12 border-(--color-border)" />
+
+      <h2 class="font-display mb-4 text-2xl font-semibold text-(--color-ink)">
+        The Toolkit
+      </h2>
+      <ul class="space-y-3 pl-5 list-disc my-6">
+        <li><strong>Languages & Logic:</strong> TypeScript, Node.js, Python, Strict JSON Schema Validation</li>
+        <li><strong>Automation & Flow:</strong> n8n, Custom Webhooks, Message Queues (BullMQ/Redis)</li>
+        <li><strong>Data & AI Stack:</strong> PostgreSQL, Supabase, Advanced LLM Integration (Structured Outputs), Semantic Routing</li>
+        <li><strong>Infrastructure:</strong> Docker, Cloudflare, Version-Controlled Git Architectures</li>
+      </ul>
+
+      <hr class="my-12 border-(--color-border)" />
+
+      <h2 class="font-display mb-4 text-xl font-semibold text-(--color-ink)">
+        Ready to remove the manual work?
+      </h2>
+      <p class="mb-8">
+        If you are evaluating whether an automated system could remove manual friction, prevent data loss, 
+        or accelerate response times in your operation, let's look at the math.
+      </p>
+      
+      <div class="mt-8">
+        <a
+        href={CONTACT_PATH}
+        class="label-mono bg-(--color-accent) px-6 py-3 text-xs text-(--color-surface) transition-transform hover:-translate-y-0.5"
+      >
+          START A STRUCTURAL SCOPING CONVERSATION
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

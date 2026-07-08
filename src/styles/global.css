@@ -1,0 +1,231 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Structural palette: graphite base, warm paper ink, brass accent. */
+  --color-surface: #0a0b0d;
+  --color-surface-raised: #15171b;
+  --color-surface-sunken: #050506;
+  --color-ink: #ece7dd;
+  --color-ink-muted: #8d8d86;
+  --color-accent: #259ae8;
+  --color-accent-dim: #165c8b;
+  --color-border: #26282d;
+  --color-border-strong: #3a3d44;
+
+  --font-display: 'Fraunces', 'Iowan Old Style', serif;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --radius-card: 2px;
+}
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-(--color-surface) text-(--color-ink) antialiased;
+    font-family: var(--font-body);
+    background-image:
+      linear-gradient(to bottom, color-mix(in srgb, var(--color-border) 35%, transparent) 1px, transparent 1px),
+      linear-gradient(to right, color-mix(in srgb, var(--color-border) 35%, transparent) 1px, transparent 1px);
+    background-size: 64px 64px;
+    background-position: 0 0;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-surface);
+  }
+
+  a {
+    text-underline-offset: 3px;
+  }
+
+  /* Blueprint corner brackets -- used on Card and other bordered panels */
+  .corner-frame {
+    position: relative;
+  }
+  .corner-frame::before,
+  .corner-frame::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-color: var(--color-accent);
+    opacity: 0;
+    transition: opacity 0.2s ease, width 0.2s ease, height 0.2s ease;
+  }
+  .corner-frame::before {
+    top: -1px;
+    left: -1px;
+    border-top: 2px solid;
+    border-left: 2px solid;
+  }
+  .corner-frame::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 2px solid;
+    border-right: 2px solid;
+  }
+  .corner-frame:hover::before,
+  .corner-frame:hover::after {
+    opacity: 1;
+    width: 16px;
+    height: 16px;
+  }
+
+  .label-mono {
+    font-family: var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* Staggered fade-up entrance, used on the hero */
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .fade-up {
+    animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fade-up {
+      animation: none;
+    }
+    .corner-frame::before,
+    .corner-frame::after {
+      transition: none;
+    }
+  }
+
+  /* Hand-rolled markdown typography (no @tailwindcss/typography dependency) */
+  .prose {
+    color: var(--color-ink);
+    font-size: 1.0625rem;
+    line-height: 1.75;
+  }
+  .prose > * + * {
+    margin-top: 1.5em;
+  }
+  .prose h1, .prose h2, .prose h3, .prose h4 {
+    color: var(--color-ink);
+    margin-top: 2.2em;
+    margin-bottom: 0.6em;
+    line-height: 1.25;
+  }
+  .prose h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  .prose h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+  .prose p {
+    color: var(--color-ink);
+  }
+  .prose strong {
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+  .prose a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent-dim);
+  }
+  .prose a:hover {
+    text-decoration-color: var(--color-accent);
+  }
+  .prose ul, .prose ol {
+    padding-left: 1.4em;
+  }
+  .prose ul {
+    list-style: disc;
+  }
+  .prose ol {
+    list-style: decimal;
+  }
+  .prose li + li {
+    margin-top: 0.4em;
+  }
+  .prose blockquote {
+    border-left: 2px solid var(--color-accent);
+    padding-left: 1.2em;
+    font-family: var(--font-display);
+    font-style: italic;
+    color: var(--color-ink-muted);
+  }
+  .prose code {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    background: var(--color-surface-raised);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    padding: 0.15em 0.4em;
+  }
+  .prose pre {
+    position: relative;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    padding: 2.6em 1.2em 1.1em;
+    overflow-x: auto;
+    font-size: 0.875em;
+    line-height: 1.6;
+  }
+  .prose pre code {
+    background: none;
+    border: none;
+    padding: 0;
+  }
+
+  /* Copy/download icon toolbar, injected into pre.astro-code by CopyCodeButtons.astro */
+  .code-toolbar {
+    position: absolute;
+    top: 0.7em;
+    right: 0.9em;
+    display: flex;
+    gap: 0.4em;
+  }
+  .code-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.9em;
+    height: 1.9em;
+    color: var(--color-ink-muted);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+  .code-icon-btn:hover,
+  .code-icon-btn:focus-visible {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+  .code-icon-btn[data-copied='true'] {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+  .prose hr {
+    border-color: var(--color-border);
+    margin: 2.5em 0;
+  }
+}

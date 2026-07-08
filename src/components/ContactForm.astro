@@ -1,0 +1,143 @@
+---
+interface Props {
+  heading?: string;
+  description?: string;
+}
+
+const {
+  heading = 'Start the conversation.',
+  description = "Tell me about the operation and where the manual work is piling up. I'll reply within one business day.",
+} = Astro.props;
+
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
+---
+
+<section class="mx-auto max-w-xl px-6 py-24">
+  <div class="mb-10 flex flex-col gap-2">
+    <span class="label-mono text-xs text-(--color-accent)">Contact</span>
+    <h2 class="font-display text-3xl font-semibold text-(--color-ink)">{heading}</h2>
+    <p class="text-(--color-ink-muted)">{description}</p>
+  </div>
+
+  <form id="contact-form" class="flex flex-col gap-5" novalidate>
+    <div class="flex flex-col gap-2">
+      <label for="contact-name" class="label-mono text-xs text-(--color-ink-muted)">Name</label>
+      <input
+        id="contact-name"
+        name="name"
+        type="text"
+        required
+        maxlength="200"
+        autocomplete="name"
+        class="border border-(--color-border) bg-(--color-surface-raised) px-4 py-3 text-sm text-(--color-ink) outline-none transition-colors focus:border-(--color-accent)"
+      />
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="contact-email" class="label-mono text-xs text-(--color-ink-muted)">Email</label>
+      <input
+        id="contact-email"
+        name="email"
+        type="email"
+        required
+        maxlength="200"
+        autocomplete="email"
+        class="border border-(--color-border) bg-(--color-surface-raised) px-4 py-3 text-sm text-(--color-ink) outline-none transition-colors focus:border-(--color-accent)"
+      />
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="contact-message" class="label-mono text-xs text-(--color-ink-muted)">Message</label>
+      <textarea
+        id="contact-message"
+        name="message"
+        rows="6"
+        required
+        maxlength="2000"
+        class="resize-y border border-(--color-border) bg-(--color-surface-raised) px-4 py-3 text-sm text-(--color-ink) outline-none transition-colors focus:border-(--color-accent)"
+      ></textarea>
+    </div>
+
+    <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="dark"></div>
+
+    <button
+      id="contact-form-submit"
+      type="submit"
+      class="label-mono bg-(--color-accent) px-6 py-3 text-xs text-(--color-surface) transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      Send Message
+    </button>
+
+    <p id="contact-form-status" role="status" aria-live="polite" class="label-mono text-xs" data-state="idle"></p>
+  </form>
+</section>
+
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+<script>
+  type FormState = 'idle' | 'pending' | 'success' | 'error';
+
+  declare global {
+    interface Window {
+      turnstile?: {
+        reset: (widgetId?: string) => void;
+      };
+    }
+  }
+
+  const form = document.getElementById('contact-form');
+  const statusEl = document.getElementById('contact-form-status');
+  const submitBtn = document.getElementById('contact-form-submit') as HTMLButtonElement | null;
+
+  function setStatus(state: FormState, message: string) {
+    if (!statusEl) return;
+    statusEl.textContent = message;
+    statusEl.dataset.state = state;
+    statusEl.classList.toggle('text-(--color-accent)', state === 'success' || state === 'pending');
+    statusEl.classList.toggle('text-red-400', state === 'error');
+  }
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!(form instanceof HTMLFormElement) || !submitBtn) return;
+
+    const formData = new FormData(form);
+    const turnstileToken = formData.get('cf-turnstile-response');
+
+    if (!turnstileToken) {
+      setStatus('error', 'Please complete the human verification challenge.');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    setStatus('pending', 'Sending…');
+
+    try {
+      const response = await fetch('/api/submit-contact', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.get('name'),
+          email: formData.get('email'),
+          message: formData.get('message'),
+          turnstileToken,
+        }),
+      });
+
+      const result = (await response.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+
+      if (!response.ok || !result.ok) {
+        throw new Error(typeof result.error === 'string' ? result.error : 'Something went wrong. Please try again.');
+      }
+
+      setStatus('success', "Message sent — I'll reply within one business day.");
+      form.reset();
+      window.turnstile?.reset();
+    } catch (error) {
+      setStatus('error', error instanceof Error ? error.message : 'Something went wrong. Please try again.');
+      window.turnstile?.reset();
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+</script>
