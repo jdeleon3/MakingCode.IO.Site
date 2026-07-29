@@ -1,0 +1,246 @@
+---
+interface Props {
+  postSlug: string;
+}
+
+const { postSlug } = Astro.props;
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
+---
+
+<section
+  id="comments"
+  data-post-slug={postSlug}
+  class="mx-auto max-w-3xl px-6 pb-24"
+>
+  <div class="mb-8 flex flex-col gap-2 border-t border-(--color-border) pt-12">
+    <span class="label-mono text-xs text-(--color-accent)">Replies</span>
+    <h2 class="font-display text-2xl font-semibold text-(--color-ink)">
+      Hit the same wall? Tell me what worked for you.
+    </h2>
+  </div>
+
+  <div id="comments-list" class="mb-12 flex flex-col gap-4">
+    <p id="comments-empty" class="text-sm text-(--color-ink-muted)" hidden>
+      No replies yet. Be the first.
+    </p>
+  </div>
+
+  <form id="comment-form" class="flex flex-col gap-5" novalidate>
+    <div class="flex flex-col gap-2">
+      <label for="comment-name" class="label-mono text-xs text-(--color-ink-muted)">Name</label>
+      <input
+        id="comment-name"
+        name="authorName"
+        type="text"
+        required
+        maxlength="100"
+        autocomplete="name"
+        class="border border-(--color-border) bg-(--color-surface-raised) px-4 py-3 text-sm text-(--color-ink) outline-none transition-colors focus:border-(--color-accent)"
+      />
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="comment-email" class="label-mono text-xs text-(--color-ink-muted)">Email</label>
+      <input
+        id="comment-email"
+        name="authorEmail"
+        type="email"
+        required
+        maxlength="200"
+        autocomplete="email"
+        class="border border-(--color-border) bg-(--color-surface-raised) px-4 py-3 text-sm text-(--color-ink) outline-none transition-colors focus:border-(--color-accent)"
+      />
+      <p class="text-xs text-(--color-ink-muted)">Never displayed publicly.</p>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="comment-body" class="label-mono text-xs text-(--color-ink-muted)">Reply</label>
+      <textarea
+        id="comment-body"
+        name="body"
+        rows="4"
+        required
+        maxlength="2000"
+        class="resize-y border border-(--color-border) bg-(--color-surface-raised) px-4 py-3 text-sm text-(--color-ink) outline-none transition-colors focus:border-(--color-accent)"
+      ></textarea>
+    </div>
+
+    {/* Honeypot: hidden from real visitors, bots that auto-fill every field will trip it. */}
+    <div class="absolute -left-[9999px]" aria-hidden="true">
+      <label for="comment-website">Website</label>
+      <input id="comment-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+    </div>
+
+    <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="dark"></div>
+
+    <button
+      id="comment-form-submit"
+      type="submit"
+      class="label-mono self-start bg-(--color-accent) px-6 py-3 text-xs text-(--color-surface) transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      Post Reply
+    </button>
+
+    <p id="comment-form-status" role="status" aria-live="polite" class="label-mono text-xs" data-state="idle"></p>
+  </form>
+</section>
+
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+<script>
+  import { createClient } from '@supabase/supabase-js';
+
+  declare global {
+    interface Window {
+      turnstile?: { reset: (widgetId?: string) => void };
+    }
+  }
+
+  interface CommentRow {
+    id: string;
+    author_name: string;
+    body: string;
+    created_at: string;
+  }
+
+  const section = document.getElementById('comments');
+  const postSlug = section?.dataset.postSlug ?? '';
+  const listEl = document.getElementById('comments-list');
+  const emptyEl = document.getElementById('comments-empty');
+  const form = document.getElementById('comment-form');
+  const statusEl = document.getElementById('comment-form-status');
+  const submitBtn = document.getElementById('comment-form-submit') as HTMLButtonElement | null;
+
+  const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL as string | undefined;
+  const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string | undefined;
+  const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
+
+  function formatDate(iso: string): string {
+    return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+
+  function renderComment(comment: CommentRow, pending = false) {
+    const el = document.createElement('div');
+    el.className = 'border border-(--color-border) bg-(--color-surface-raised) p-5';
+
+    const meta = document.createElement('div');
+    meta.className = 'label-mono mb-2 flex flex-wrap items-center gap-3 text-[11px] text-(--color-ink-muted)';
+
+    const name = document.createElement('span');
+    name.className = 'text-(--color-ink)';
+    name.textContent = comment.author_name;
+    meta.appendChild(name);
+
+    const date = document.createElement('span');
+    date.textContent = formatDate(comment.created_at);
+    meta.appendChild(date);
+
+    if (pending) {
+      const badge = document.createElement('span');
+      badge.className = 'border border-(--color-accent) px-2 py-0.5 text-(--color-accent)';
+      badge.textContent = 'Pending moderation';
+      meta.appendChild(badge);
+    }
+
+    const body = document.createElement('p');
+    body.className = 'text-sm text-(--color-ink)';
+    body.textContent = comment.body;
+
+    el.append(meta, body);
+    return el;
+  }
+
+  async function loadComments() {
+    if (!supabase || !postSlug || !listEl) return;
+
+    const { data, error } = await supabase
+      .from('comments')
+      .select('id, author_name, body, created_at')
+      .eq('post_slug', postSlug)
+      .eq('status', 'approved')
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('Failed to load comments:', error.message);
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      emptyEl?.removeAttribute('hidden');
+      return;
+    }
+
+    emptyEl?.setAttribute('hidden', '');
+    for (const comment of data as CommentRow[]) {
+      listEl.appendChild(renderComment(comment));
+    }
+  }
+
+  loadComments();
+
+  type FormState = 'idle' | 'pending' | 'success' | 'error';
+
+  function setStatus(state: FormState, message: string) {
+    if (!statusEl) return;
+    statusEl.textContent = message;
+    statusEl.dataset.state = state;
+    statusEl.classList.toggle('text-(--color-accent)', state === 'success' || state === 'pending');
+    statusEl.classList.toggle('text-red-400', state === 'error');
+  }
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!(form instanceof HTMLFormElement) || !submitBtn) return;
+
+    const formData = new FormData(form);
+    const turnstileToken = formData.get('cf-turnstile-response');
+
+    if (!turnstileToken) {
+      setStatus('error', 'Please complete the human verification challenge.');
+      return;
+    }
+
+    const authorName = String(formData.get('authorName') ?? '');
+    const commentBody = String(formData.get('body') ?? '');
+
+    submitBtn.disabled = true;
+    setStatus('pending', 'Posting…');
+
+    try {
+      const response = await fetch('/api/submit-comment', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          postSlug,
+          authorName,
+          authorEmail: formData.get('authorEmail'),
+          body: commentBody,
+          turnstileToken,
+          website: formData.get('website'),
+        }),
+      });
+
+      const result = (await response.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+
+      if (!response.ok || !result.ok) {
+        throw new Error(typeof result.error === 'string' ? result.error : 'Something went wrong. Please try again.');
+      }
+
+      setStatus('success', "Reply posted — it'll show up here once approved.");
+      emptyEl?.setAttribute('hidden', '');
+      listEl?.appendChild(
+        renderComment(
+          { id: 'local-pending', author_name: authorName, body: commentBody, created_at: new Date().toISOString() },
+          true,
+        ),
+      );
+      form.reset();
+      window.turnstile?.reset();
+    } catch (error) {
+      setStatus('error', error instanceof Error ? error.message : 'Something went wrong. Please try again.');
+      window.turnstile?.reset();
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+</script>

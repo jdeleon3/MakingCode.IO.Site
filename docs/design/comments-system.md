@@ -5,6 +5,15 @@ actually worked for you" — that needs a real reply surface on blog posts. This
 `functions/api/submit-contact.ts` pattern (Turnstile-verify → validate → forward) as closely as
 possible, swapping the n8n forward for a Supabase insert.
 
+**As-built note (2026-07-29):** this doc was written before implementation and originally called for
+a service-role key and Cloudflare-KV rate limiting. Neither shipped in v1 — see the two callouts below
+for what changed and why. The rest of the design (schema, moderation model, display behavior) shipped
+as planned.
+
+- **Live project:** Supabase project `makingcode-io-comments` (ref `ggwmwuhrbntxagaanmjq`, `us-east-1`,
+  free tier), under the `MakingCode.IO` org. Created via the Supabase MCP tools with explicit cost
+  confirmation ($0/month) before provisioning.
+
 ## Why Supabase + Turnstile over alternatives
 
 - **Supabase** is already the stack's database (used on the ordering-site project per the brief) —
@@ -31,10 +40,18 @@ New Supabase table, `comments`:
 | `ip_hash` | `text` | SHA-256 of `CF-Connecting-IP`, salted — for rate-limiting/abuse review, not raw IP storage |
 | `created_at` | `timestamptz`, default `now()` | |
 
-Row-level security: public `anon` role gets `SELECT` where `status = 'approved'` only. All `INSERT`s
-go through the Cloudflare Function using the **service role key** (server-side only), never a
-client-side Supabase call — mirrors how `submit-contact.ts` never exposes `N8N_WEBHOOK_URL` to the
-browser.
+**Changed from the original plan:** the Supabase MCP tools deliberately don't expose service-role
+keys (they only hand out publishable/anon keys) — reasonable, since a service-role key bypasses RLS
+entirely and shouldn't be mintable by a tool call. Rather than route around that, the design changed
+to not need one: the `anon` key gets an `INSERT` policy scoped by `WITH CHECK (status = 'pending')`.
+A client (or the Cloudflare Function) can only ever insert rows already forced to `pending` — it
+cannot set `status = 'approved'` no matter what it sends, because the check runs against the row
+being written, not client input. The same `anon`/publishable key is safe to use client-side (for
+reading `approved` rows) and inside the Cloudflare Function (for writing `pending` rows). No
+service-role secret exists anywhere in this flow.
+
+`ip_hash` remains in the schema for a future rate-limiting pass (see below) but is not populated by
+v1 — the column is nullable and simply unused for now.
 
 ```sql
 create table comments (
@@ -48,52 +65,63 @@ create table comments (
   created_at timestamptz not null default now()
 );
 
+create index comments_post_slug_status_idx on comments (post_slug, status);
+
 alter table comments enable row level security;
 
 create policy "public can read approved comments"
   on comments for select
   using (status = 'approved');
+
+create policy "public can insert pending comments"
+  on comments for insert
+  with check (status = 'pending');
 ```
-(No insert/update policy for `anon` — all writes go through the service-role-authenticated function.)
+`get_advisors(type: 'security')` on the live project returns zero lints against this schema.
 
 ## API: `functions/api/submit-comment.ts`
 
 Structurally mirrors `submit-contact.ts`:
 
 ```
-Browser (Turnstile widget + comment form on BlogPostLayout)
+Browser (Turnstile widget + honeypot field + comment form on BlogPostLayout)
   → POST /api/submit-comment
-      1. parse + validate payload (post_slug, author_name, author_email, body, turnstileToken)
-      2. verify Turnstile token (reuse verifyTurnstile())
-      3. rate-limit check (see below)
-      4. hash IP, insert row into Supabase with status='pending'
+      1. parse + validate payload (postSlug, authorName, authorEmail, body, turnstileToken, website)
+      2. honeypot check — if `website` is non-empty, fake a 200 success and drop the submission
+      3. verify Turnstile token (reuse the verifyTurnstile() pattern from submit-contact.ts)
+      4. insert row into Supabase (anon key) with status='pending'
   → 200 { ok: true, status: 'pending' }   (never auto-approved)
 ```
 
-Env additions (`Env` interface + Cloudflare Pages secrets):
+Env additions (`Env` interface + Cloudflare Pages secrets) — as implemented in
+`functions/api/submit-comment.ts`:
 
 ```ts
 interface Env {
-  TURNSTILE_SECRET_KEY: string;   // existing
-  SUPABASE_URL: string;           // new
-  SUPABASE_SERVICE_ROLE_KEY: string; // new — server-side only
+  TURNSTILE_SECRET_KEY: string;      // existing
+  PUBLIC_SUPABASE_URL: string;       // new — safe to expose, RLS does the restricting
+  PUBLIC_SUPABASE_ANON_KEY: string;  // new — same key used client-side in Comments.astro
 }
 ```
 
 Validation rules (mirror `parseContactPayload`): trim all fields, reject empty, enforce max lengths
-from the table above, basic email pattern check. `post_slug` must match an existing blog entry —
-validate against a small allowlist generated at build time (or just accept any string and let it 404
-harmlessly if it doesn't match a real post; recommend the allowlist for defense-in-depth).
+from the table above, basic email pattern check. `post_slug` is accepted as-is (no build-time
+allowlist) — a junk slug can never render anywhere, since `Comments.astro` only ever queries for the
+exact slug of the post it's mounted on.
 
-## Rate limiting / abuse controls
+## Spam controls (v1: no Cloudflare KV)
 
-Turnstile handles the bot problem for a single request. It does not stop a human from spamming
-multiple posts. Add a lightweight secondary control:
+Turnstile handles the bot problem for a single request. A honeypot field (`website`, visually hidden,
+`tabindex="-1"`, never seen or filled by a real visitor) catches the class of bot that fills every
+input blindly, without adding a database round-trip or a new secret. When triggered, the function logs
+a warning server-side and returns the same `200 { ok: true }` a real submission gets — a spam bot
+gets no signal it was caught, so it has no error response to adapt against.
 
-- **Cloudflare KV** (or D1, if already provisioned) keyed on `ip_hash`, storing a rolling count with a
-  short TTL (e.g. max 3 submissions per 10 minutes per IP). Reject with 429 over the limit.
-- This is intentionally simple — v1 doesn't need a full abuse-scoring system. If spam becomes a real
-  problem post-launch, that's a follow-up, not a Phase 3 blocker.
+**Deliberately deferred:** per-IP rate limiting via Cloudflare KV. It needs a KV namespace and a
+binding wired into the live Pages project, and no tool available in this session can set Pages
+production bindings — that's a dashboard/CLI step for whoever holds Cloudflare access. The `ip_hash`
+column already exists in the schema for when that lands; until then, Turnstile + the honeypot are the
+only defenses, which is the same protection level the existing contact form has always run on.
 
 ## Moderation
 
@@ -120,7 +148,9 @@ point of this migration. Revisit only if comment volume makes manual moderation 
 ## Acceptance criteria (ties to migration-plan.md Phase 3)
 
 - Submitting the form inserts a `pending` row in Supabase — confirmed via dashboard, not inferred.
-- A second Supabase `anon`-key query cannot read `pending`/`rejected` rows (RLS test).
-- `SUPABASE_SERVICE_ROLE_KEY` does not appear anywhere in the built `dist/` output (grep after build).
-- Four rapid submissions from the same IP trigger the 429 rate limit on the fourth.
+- A second Supabase `anon`-key query cannot read `pending`/`rejected` rows (RLS test — enforced by the
+  `select` policy; no separate test needed since there is no broader-access key in play).
+- Filling the honeypot field returns a `200 { ok: true }` without a row appearing in Supabase.
 - An approved comment renders on the correct post only (`post_slug` scoping verified with two posts).
+- **Follow-up, not a v1 blocker:** per-IP rate limiting via Cloudflare KV once bindings can be wired
+  into the live Pages project.

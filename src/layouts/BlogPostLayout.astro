@@ -4,6 +4,7 @@ import { Image } from 'astro:assets';
 import BaseLayout from './BaseLayout.astro';
 import PostMeta from '../components/PostMeta.astro';
 import Byline from '../components/Byline.astro';
+import Comments from '../components/Comments.astro';
 
 interface Props {
   title: string;
@@ -13,9 +14,10 @@ interface Props {
   tags?: string[];
   heroImage?: ImageMetadata;
   ogImage?: string;
+  slug: string;
 }
 
-const { title, description, pubDate, updatedDate, tags, heroImage, ogImage } = Astro.props;
+const { title, description, pubDate, updatedDate, tags, heroImage, ogImage, slug } = Astro.props;
 ---
 
 <BaseLayout title={title} description={description} image={ogImage}>
@@ -44,4 +46,5 @@ const { title, description, pubDate, updatedDate, tags, heroImage, ogImage } = A
     </div>
     <Byline />
   </article>
+  <Comments postSlug={slug} />
 </BaseLayout>

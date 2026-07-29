@@ -86,24 +86,37 @@ in `ResponsiveTables`/`CopyCodeButtons` behavior; Lighthouse/contrast check on a
 
 ---
 
-## Phase 3 — Comments + spam protection
+## Phase 3 — Comments + spam protection ✅ shipped 2026-07-29
 
-See `docs/design/comments-system.md` for the full technical spec (schema, API contract, moderation,
-rate limiting). Summary of scope:
+See `docs/design/comments-system.md` for the full technical spec and the as-built deltas from the
+original plan. What actually shipped:
 
-- New Supabase table (`comments`) with a moderation queue (`pending` → `approved`/`rejected`).
+- New Supabase project (`makingcode-io-comments`, ref `ggwmwuhrbntxagaanmjq`) provisioned live via the
+  Supabase MCP tools, under the MakingCode.IO org, $0/month, with explicit cost confirmation before
+  creation. `comments` table with a moderation queue (`pending` → `approved`/`rejected`).
+- **Changed from plan:** no service-role key. The Supabase MCP tools don't expose one (by design), so
+  the schema uses an `INSERT ... WITH CHECK (status = 'pending')` RLS policy instead — the public
+  anon/publishable key can insert but never set a row to `approved`. Simpler than the original plan,
+  not a compromise.
 - New Cloudflare Pages Function `functions/api/submit-comment.ts`, structurally mirroring
   `submit-contact.ts` (Turnstile verify → validate → insert), swapping the n8n-forward step for a
-  Supabase insert.
-- New Astro component `Comments.astro` (or SSR fetch on the blog post layout) that reads only
-  `approved` rows for a given post slug.
-- `BlogPostLayout.astro` gets a comment thread below the post body, styled per Phase 2's tokens.
-- `.env` / Cloudflare Pages secrets: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (server-side only,
-  never shipped to the client), reuse existing `TURNSTILE_SECRET_KEY`/`PUBLIC_TURNSTILE_SITE_KEY`.
+  Supabase insert via the anon key.
+- **Changed from plan:** no Cloudflare KV rate limiting in v1 — no tool in this session could wire a
+  KV binding into the live Pages project, so that's deferred to whoever next has Cloudflare dashboard
+  access. In its place, a honeypot hidden field (`website`) added to the comment form, matching the
+  existing Turnstile-only protection level of the contact form.
+- New `Comments.astro`: client-side fetch (Supabase JS + anon key, RLS-restricted to `approved` rows)
+  rather than an SSR conversion — keeps the site fully static.
+- `BlogPostLayout.astro` now threads `slug` through from `[...id].astro` and renders `Comments`
+  below the post body and the new `Byline` component.
+- `.env` additions: `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY` (real values, written directly
+  to the gitignored local `.env`). Production Cloudflare Pages secrets still need to be set by whoever
+  has dashboard/CLI access — not done as part of this phase.
 
 **Acceptance:** a comment submitted through the UI lands in Supabase as `pending`; only `approved`
-rows render on the post; a scripted flood of submissions is rate-limited/blocked; no service-role key
-reaches client-side JS (verify in built output, not just source).
+rows render on the post; the honeypot silently drops bot-shaped submissions; `get_advisors` reports
+zero security lints on the live schema. Rate limiting beyond Turnstile+honeypot is an open follow-up,
+not a Phase 3 blocker (see comments-system.md).
 
 ---
 
