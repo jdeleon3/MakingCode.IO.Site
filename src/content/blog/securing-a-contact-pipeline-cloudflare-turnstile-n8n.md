@@ -1,6 +1,6 @@
 ---
 title: 'Securing a Contact Pipeline: Astro, Cloudflare Pages Functions, Turnstile, and n8n'
-description: 'How we replaced hardcoded mailto links with an edge gateway that verifies humans, signs its own JWT, and hands off to a self-hosted n8n workflow — and the two local-dev gotchas that came with it.'
+description: 'How I replaced hardcoded mailto links with an edge gateway that verifies humans, signs its own JWT, and hands off to a self-hosted n8n workflow — and the two local-dev gotchas that came with it.'
 pubDate: 2026-07-08
 tags: ['architecture', 'automation', 'security']
 ---
@@ -60,7 +60,7 @@ A client-side token is a hint, not proof — trusting the widget without this ro
 
 The first cut of this pipeline authenticated to n8n with an OAuth 2.0 client-credentials grant: the Pages Function would exchange a client ID and secret at a token endpoint for a bearer token, then attach that token to the n8n request. It worked, but it bought more than the problem needed — a second network hop, a second point of failure, and an external token endpoint to keep alive, all to protect a single internal webhook that only one caller (this function) ever hits.
 
-We replaced it with a self-signed HS256 JWT, minted inline using the Workers-native `SubtleCrypto` API — no token endpoint, no extra dependency, no extra round trip:
+I replaced it with a self-signed HS256 JWT, minted inline using the Workers-native `SubtleCrypto` API — no token endpoint, no extra dependency, no extra round trip:
 
 ```typescript
 async function signContactJwt(secret: string): Promise<string> {

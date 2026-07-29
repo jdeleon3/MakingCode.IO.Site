@@ -91,4 +91,4 @@ curl -X POST http://localhost:8787/webhooks/crm \
   -d '{"id":"evt_9f8a1c","type":"lead.created","payload":{}}'
 ```
 
-If the second call returns `duplicate_ignored` and no second side effect fires, the ledger is doing its job. This same pattern — a small keyed table in front of anything with a side effect — is the backbone of every reliable automation pipeline we ship, regardless of which CRM or messaging provider sits on the other end.
+If the second call returns `duplicate_ignored` and no second side effect fires, the ledger is doing its job. This same pattern — a small keyed table in front of anything with a side effect — is the one I reach for by default now, regardless of which CRM or messaging provider sits on the other end.

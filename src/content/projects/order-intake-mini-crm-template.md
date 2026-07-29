@@ -22,7 +22,7 @@ featured: true
 
 [RD Creations](https://rdcreationsvm.com), a cottage-food bakery in Valley Mills, Texas, was running its entire order book out of Instagram DMs, text threads, and a notebook by the register. It worked while every customer was someone the owner knew personally. It stopped working the moment order volume outgrew one person's memory: details got lost between the DM and the oven, nobody could say for certain who'd paid, and pickup times collided because nothing was written down in one place.
 
-We built a pickup-only order intake site and a single-admin mini-CRM to fix that — and because the underlying shape of the problem isn't specific to bakeries, we're packaging it as a template for any small operator selling made-to-order or limited-batch goods locally.
+I built a pickup-only order intake site and a single-admin mini-CRM to fix that — and because the underlying shape of the problem isn't specific to bakeries, I'm packaging it as a template for any small operator selling made-to-order or limited-batch goods locally.
 
 <img src="/images/projects/order-intake-mini-crm/storefront-cart-checkout.png" alt="Live storefront: cart summary with subtotal and required deposit, and the pickup-only checkout form" loading="lazy" />
 
@@ -44,7 +44,7 @@ The common thread: one-person or family-run, no dedicated admin staff, and alrea
 
 **Not a fit:** multi-location retail, real-time multi-SKU inventory, same-day/instant checkout expectations, or high enough order volume to need automated in-app payment capture.
 
-## What we built
+## What I built
 
 **Public site** — browsable catalog with photos and availability, a persisted cart, and a single-page checkout that collects contact info, a pickup town restricted to a configurable service area, a pickup date, and a required consent/disclosure checkbox — no payment fields, no shipping form.
 
@@ -128,7 +128,7 @@ A single-admin tool that touches customer PII, order data, and image uploads sti
 | Data access | Database RLS enabled on every table with zero policies — only a server-only service-role key can read or write | Any client-side credential leak defaulting to zero access instead of broad access |
 | Secrets | All secrets read server-side through one env abstraction, never shipped to the browser | Secret leakage into client bundles |
 
-The honest gap: there's no application-level rate limiting on the order-submission or admin-login endpoints beyond Turnstile — that's left to platform-level protection (Cloudflare WAF rules), which is a reasonable default for this scale but worth calling out explicitly rather than implying it's handled. By offloading rate-limiting to platform-level Cloudflare WAF rules, we keep the core codebase lean and ensure the database free tier isn't wasted handling malicious bot traffic.
+The honest gap: there's no application-level rate limiting on the order-submission or admin-login endpoints beyond Turnstile — that's left to platform-level protection (Cloudflare WAF rules), which is a reasonable default at this scale but worth stating outright instead of implying it's handled. Offloading rate limiting to Cloudflare's WAF keeps the codebase lean and keeps the database's free tier from absorbing bot traffic it doesn't need to.
 
 ---
 
@@ -152,14 +152,8 @@ RD Creations went from DMs-and-a-notebook to a spam-guarded intake form and a da
 
 ---
 
-### Bring This Automation to Your Business
+## What I haven't tested beyond this
 
-If your business is currently drowning in Instagram DMs, chaotic text threads, and missed invoices, you don't need a bloated Shopify store — you need a lightweight logistics engine built specifically for how you actually operate.
+One client, one build. I don't yet know how this holds up against a catalog with real SKU-level variants, or a service area with a hundred towns instead of a handful — those are the things that would change my mind about calling this "generalized" rather than "generalizable."
 
-**How we work together:**
-
-- **Custom Tailoring:** We adapt this template to your brand identity, local service constraints, and specific legal compliance copy.
-- **Zero SaaS Overhead:** We deploy your system to dedicated, modern serverless infrastructure that leverages generous free tiers — meaning near-zero ongoing hosting costs for your business traffic scale.
-- **End-to-End Handover:** We plug the engine directly into your existing Stripe or invoicing workflows so you can manage your operations seamlessly from your phone.
-
-Ready to get your order book out of your inbox? [Let's build your operations engine](/contact/).
+If you're running a business out of DMs and a notebook and this shape fits, I do this kind of work — see [what I work on](/work-with-me/).
