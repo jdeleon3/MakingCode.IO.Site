@@ -3,6 +3,7 @@ import type { ImageMetadata } from 'astro';
 import { Image } from 'astro:assets';
 import BaseLayout from './BaseLayout.astro';
 import PostMeta from '../components/PostMeta.astro';
+import Byline from '../components/Byline.astro';
 
 interface Props {
   title: string;
@@ -41,5 +42,6 @@ const { title, description, pubDate, updatedDate, tags, heroImage, ogImage } = A
     <div class="prose">
       <slot />
     </div>
+    <Byline />
   </article>
 </BaseLayout>

@@ -8,7 +8,10 @@ const posts = (await getCollection('blog')).sort(
 );
 ---
 
-<BaseLayout title="Blog" description="Architectural trade-offs and engineering notes.">
+<BaseLayout
+  title="Blog"
+  description="Build logs from the transition into AI and automation — what worked, what didn't, and the parts still unresolved."
+>
   <section class="mx-auto max-w-6xl px-6 py-24">
     <span class="label-mono text-xs text-(--color-accent)">Field Notes</span>
     <h1 class="font-display mb-12 mt-3 text-4xl font-semibold text-(--color-ink)">Blog</h1>
