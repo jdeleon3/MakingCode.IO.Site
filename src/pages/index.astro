@@ -4,14 +4,13 @@ import Hero from '../components/Hero.astro';
 import Card from '../components/Card.astro';
 import { getCollection } from 'astro:content';
 import { WORK_WITH_ME_PATH } from '../consts';
+import { isPublished, byNewestFirst } from '../lib/publishing';
 
-const latestPosts = (await getCollection('blog'))
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-  .slice(0, 3);
+const latestPosts = (await getCollection('blog', isPublished)).sort(byNewestFirst).slice(0, 3);
 
-const featuredProjects = (await getCollection('projects'))
+const featuredProjects = (await getCollection('projects', isPublished))
   .filter((project) => project.data.featured)
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .sort(byNewestFirst)
   .slice(0, 3);
 ---
 

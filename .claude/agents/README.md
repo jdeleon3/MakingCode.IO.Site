@@ -1,21 +1,13 @@
-# Multi-Agent Studio System
+# Agents
 
-This directory contains **34 specialist subagents** for Claude Code, organized into 7
-departments that mirror a small product studio. Each `.md` file is a self-contained
-subagent definition (YAML frontmatter + system prompt) that Claude Code can invoke
-automatically or on request.
+Two subagents, purpose-built for this site's editorial workflow. (This directory used to hold a
+generic 34-agent "product studio" pack — mobile app builders, TikTok strategists, finance trackers —
+none of which fit a solo content site. Trimmed 2026-07-29.)
 
-## Departments
+| Agent | Purpose |
+|---|---|
+| `content-editor` | Reviews a draft against `brand-brief.md` and `docs/design/voice-guide.md`; reports specific violations with fixes. Read-only by default — only edits when explicitly asked to apply fixes. |
+| `content-researcher` | Grounds a new project writeup in real facts pulled from its actual repo, a PDF/paper, and/or its live URL — so posts cite real numbers instead of plausible-sounding invention. Research only, never writes the post itself. |
 
-| Folder | Agents | Purpose |
-|---|---|---|
-| `engineering/` | frontend-developer, backend-architect, mobile-app-builder, ai-engineer, devops-automator, rapid-prototyper | Building and shipping software |
-| `product/` | trend-researcher, feedback-synthesizer, sprint-prioritizer | Deciding what to build |
-| `marketing/` | tiktok-strategist, instagram-curator, twitter-engager, reddit-community-builder, app-store-optimizer, content-creator, growth-hacker | Getting the word out |
-| `design/` | ui-designer, ux-researcher, brand-guardian, visual-storyteller, whimsy-injector | How it looks and feels |
-| `project-management/` | experiment-tracker, project-shipper, studio-producer | Keeping work moving |
-| `studio-operations/` | support-responder, analytics-reporter, infrastructure-maintainer, legal-compliance-checker, finance-tracker | Running the business day-to-day |
-| `testing/` | tool-evaluator, api-tester, workflow-optimizer, performance-benchmarker, test-results-analyzer | Quality and performance |
-
-See `GETTING_STARTED.md` (one level up, at the project root) for installation
-and a first end-to-end example.
+See `CLAUDE.md` (repo root) for the full content workflow these fit into, and
+`.claude/skills/new-post/` / `.claude/skills/publish-check/` for the skills that use them.

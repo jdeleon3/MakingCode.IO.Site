@@ -3,10 +3,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Card from '../components/Card.astro';
 import { getCollection } from 'astro:content';
 import { CONTACT_PATH } from '../consts';
+import { isPublished, byNewestFirst } from '../lib/publishing';
 
-const proofProjects = (await getCollection('projects'))
+const proofProjects = (await getCollection('projects', isPublished))
   .filter((project) => project.data.standing)
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .sort(byNewestFirst)
   .slice(0, 3);
 ---
 

@@ -13,6 +13,8 @@ const blog = defineCollection({
       updatedDate: z.coerce.date().optional(),
       heroImage: image().optional(),
       tags: z.array(z.string()).optional(),
+      // See src/lib/publishing.ts. true = never publish regardless of pubDate.
+      draft: z.boolean().optional().default(false),
     }),
 });
 
@@ -35,6 +37,8 @@ const projects = defineCollection({
       // Which §1 (brand-brief) credential this project demonstrates, e.g.
       // "DOD-funded capstone" or "production ordering-site build".
       standing: z.string().optional(),
+      // See src/lib/publishing.ts. true = never publish regardless of pubDate.
+      draft: z.boolean().optional().default(false),
     }),
 });
 
