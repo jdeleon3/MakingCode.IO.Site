@@ -1,0 +1,55 @@
+---
+// Progressively enhances every markdown-generated <table> inside `.prose`
+// content for narrow viewports. Astro's remark/rehype pipeline outputs bare
+// <table><thead><th>/<td> markup with no way to add per-cell classes or
+// data-attributes from the markdown source, and that recurs on every future
+// case-study/blog page -- so this reads the <th> text at render time and
+// copies it onto each <td> in the matching column as a data-label attribute,
+// then global.css uses that label (via ::before) to render a card-stacked
+// layout below the 640px breakpoint instead of a horizontally-scrolling
+// table. It also restores table/row/cell ARIA roles, since the mobile layout
+// switches every element to display: block, which otherwise drops the
+// implicit table semantics for assistive tech.
+//
+// Works for any current or future .prose table without per-post changes. If
+// this script never runs (JS disabled), the table is left untouched and
+// falls back to the existing horizontal-scroll treatment.
+---
+
+<script>
+  function enhanceTables() {
+    const tables = document.querySelectorAll<HTMLTableElement>(
+      '.prose table:not([data-responsive-enhanced])',
+    );
+
+    tables.forEach((table) => {
+      const headerCells = Array.from(table.querySelectorAll<HTMLTableCellElement>('thead th'));
+      if (headerCells.length === 0) return;
+
+      const headers = headerCells.map((th) => th.textContent?.trim() ?? '');
+
+      table.querySelectorAll<HTMLTableRowElement>('tbody tr').forEach((row) => {
+        Array.from(row.children).forEach((cell, index) => {
+          if (headers[index]) {
+            cell.setAttribute('data-label', headers[index]);
+          }
+        });
+      });
+
+      // The mobile stylesheet forces every descendant to display: block, so
+      // re-declare table semantics explicitly for screen readers.
+      table.setAttribute('role', 'table');
+      table
+        .querySelectorAll('thead, tbody')
+        .forEach((el) => el.setAttribute('role', 'rowgroup'));
+      table.querySelectorAll('tr').forEach((el) => el.setAttribute('role', 'row'));
+      table.querySelectorAll('th').forEach((el) => el.setAttribute('role', 'columnheader'));
+      table.querySelectorAll('td').forEach((el) => el.setAttribute('role', 'cell'));
+
+      table.dataset.responsiveEnhanced = 'true';
+    });
+  }
+
+  enhanceTables();
+  document.addEventListener('astro:page-load', enhanceTables);
+</script>

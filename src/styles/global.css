@@ -164,6 +164,140 @@
   .prose li + li {
     margin-top: 0.4em;
   }
+  .prose img {
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+  }
+  .prose table {
+    width: 100%;
+    table-layout: fixed;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.9rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+  }
+  .prose th {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-align: left;
+    color: var(--color-ink-muted);
+    background: var(--color-surface-raised);
+    padding: 0.75em 1em;
+    border-bottom: 1px solid var(--color-border-strong);
+    overflow-wrap: break-word;
+  }
+  .prose th:first-child {
+    width: 22%;
+  }
+  .prose td {
+    padding: 0.75em 1em;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: top;
+    overflow-wrap: break-word;
+  }
+  .prose tr:last-child td {
+    border-bottom: none;
+  }
+  .prose tbody tr:nth-child(even) td {
+    background: var(--color-surface-raised);
+  }
+  .prose tbody tr:hover td {
+    background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  }
+
+  /*
+   * Mobile card-stacked table layout.
+   *
+   * Markdown tables (e.g. the 3- and 4-column comparison tables in
+   * case-study posts) render fine as a horizontally-scrolling table down to
+   * tablet widths, but on phones that forces paragraph-length cells into
+   * unreadably narrow slivers. Below 640px we instead lay each row out as a
+   * bordered, block-level "card" with the cell's column header injected
+   * above its content as a small mono-caps label.
+   *
+   * This only applies to tables tagged [data-responsive-enhanced], which
+   * ResponsiveTables.astro sets client-side after copying each <th>'s text
+   * onto the matching <td>s as a data-label attribute (plain remark/rehype
+   * markdown output has no way to add that from the .md source itself). If
+   * that script never runs (JS disabled), the table quietly falls back to
+   * the horizontal-scroll layout above instead of an unlabeled stack.
+   */
+  @media (max-width: 640px) {
+    .prose table[data-responsive-enhanced] {
+      display: block;
+      overflow-x: visible;
+      border: none;
+      font-size: 0.95rem;
+    }
+    .prose table[data-responsive-enhanced] thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    .prose table[data-responsive-enhanced] tbody,
+    .prose table[data-responsive-enhanced] tr,
+    .prose table[data-responsive-enhanced] td {
+      display: block;
+      width: 100%;
+    }
+    .prose table[data-responsive-enhanced] tr {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-card);
+      padding: 1em 1.1em;
+    }
+    .prose table[data-responsive-enhanced] tr + tr {
+      margin-top: 0.8em;
+    }
+    .prose table[data-responsive-enhanced] tbody tr:nth-child(even) td,
+    .prose table[data-responsive-enhanced] tbody tr:hover td {
+      background: none;
+    }
+    .prose table[data-responsive-enhanced] td {
+      padding: 0.6em 0;
+    }
+    .prose table[data-responsive-enhanced] td:first-child {
+      padding-top: 0;
+      padding-bottom: 0.6em;
+      margin-bottom: 0.25em;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--color-ink);
+    }
+    .prose table[data-responsive-enhanced] td:first-child[data-label]::before {
+      content: none;
+    }
+    .prose table[data-responsive-enhanced] td:not(:first-child) {
+      border-top: 1px solid var(--color-border);
+      padding-top: 0.8em;
+    }
+    .prose table[data-responsive-enhanced] td:last-child {
+      padding-bottom: 0;
+    }
+    .prose table[data-responsive-enhanced] td[data-label]::before {
+      content: attr(data-label);
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+      margin-bottom: 0.35em;
+    }
+  }
+
   .prose blockquote {
     border-left: 2px solid var(--color-accent);
     padding-left: 1.2em;

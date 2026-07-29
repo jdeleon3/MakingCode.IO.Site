@@ -1,5 +1,6 @@
 ---
 import { getCollection, render } from 'astro:content';
+import { getImage } from 'astro:assets';
 import ProjectLayout from '../../layouts/ProjectLayout.astro';
 
 export async function getStaticPaths() {
@@ -12,6 +13,10 @@ export async function getStaticPaths() {
 
 const { project } = Astro.props;
 const { Content } = await render(project);
+
+const ogImage = project.data.heroImage
+  ? (await getImage({ src: project.data.heroImage, width: 1200, height: 630 })).src
+  : undefined;
 ---
 
 <ProjectLayout
@@ -20,9 +25,11 @@ const { Content } = await render(project);
   pubDate={project.data.pubDate}
   updatedDate={project.data.updatedDate}
   tags={project.data.tags}
-  industry={project.data.industry}
+  domain={project.data.domain}
   techStack={project.data.techStack}
   impact={project.data.impact}
+  heroImage={project.data.heroImage}
+  ogImage={ogImage}
 >
   <Content />
 </ProjectLayout>

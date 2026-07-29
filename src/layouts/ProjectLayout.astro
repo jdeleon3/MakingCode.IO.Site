@@ -1,4 +1,6 @@
 ---
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
 import BaseLayout from './BaseLayout.astro';
 import PostMeta from '../components/PostMeta.astro';
 
@@ -8,16 +10,28 @@ interface Props {
   pubDate: Date;
   updatedDate?: Date;
   tags?: string[];
-  industry?: string;
+  domain?: string;
   techStack?: string[];
   impact?: string;
+  heroImage?: ImageMetadata;
+  ogImage?: string;
 }
 
-const { title, description, pubDate, updatedDate, tags, industry, techStack, impact } =
-  Astro.props;
+const {
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  tags,
+  domain,
+  techStack,
+  impact,
+  heroImage,
+  ogImage,
+} = Astro.props;
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} image={ogImage}>
   <article class="mx-auto max-w-3xl px-6 py-20">
     <header class="mb-10 flex flex-col gap-5 border-b border-(--color-border) pb-8">
       <span class="label-mono text-xs text-(--color-accent)">Tactical Breakdown</span>
@@ -28,11 +42,23 @@ const { title, description, pubDate, updatedDate, tags, industry, techStack, imp
         pubDate={pubDate}
         updatedDate={updatedDate}
         tags={tags}
-        industry={industry}
+        domain={domain}
         techStack={techStack}
         impact={impact}
       />
     </header>
+    {
+      heroImage && (
+        <Image
+          src={heroImage}
+          alt=""
+          width={1200}
+          height={630}
+          loading="eager"
+          class="mb-10 w-full border border-(--color-border) object-cover"
+        />
+      )
+    }
     <div class="prose">
       <slot />
     </div>

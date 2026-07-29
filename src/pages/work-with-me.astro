@@ -1,0 +1,118 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Card from '../components/Card.astro';
+import { getCollection } from 'astro:content';
+import { CONTACT_PATH } from '../consts';
+
+const proofProjects = (await getCollection('projects'))
+  .filter((project) => project.data.standing)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+---
+
+<BaseLayout
+  title="Work with me"
+  description="AI-integration and business-automation engineering, built with 14 years of enterprise software discipline behind it."
+>
+  <section class="mx-auto max-w-3xl px-6 py-24">
+    <span class="label-mono text-xs text-(--color-accent)">Work with me</span>
+    <h1 class="font-display mb-8 mt-3 text-4xl font-semibold text-(--color-ink)">
+      Automation and AI-integration work, built like production software.
+    </h1>
+
+    <div class="prose">
+      <p>
+        I design and build automated systems for businesses that need software to keep working when
+        no one's watching it &mdash; webhook pipelines, LLM-backed workflows, and the n8n
+        orchestration around them. 14 years of enterprise engineering is the standard I hold that
+        work to, not a credential I'm bolting onto an AI wrapper.
+      </p>
+
+      <hr class="my-12 border-(--color-border)" />
+
+      <h2 class="font-display mb-4 text-2xl font-semibold text-(--color-ink)">
+        What that discipline looks like in practice
+      </h2>
+      <ul class="space-y-3 pl-5 list-disc my-6">
+        <li>
+          <strong>True idempotency</strong> &mdash; if a webhook fires three times because of a
+          network stutter, your data doesn't get triplicated.
+        </li>
+        <li>
+          <strong>Defensive error routing</strong> &mdash; if an LLM returns a malformed payload,
+          it's quarantined and flagged, not silently dropped or forwarded broken.
+        </li>
+        <li>
+          <strong>Clean data modeling</strong> &mdash; the relational schema behind your automated
+          tools feeds your actual reporting, instead of fighting it.
+        </li>
+      </ul>
+
+      <h2 class="font-display mb-4 mt-12 text-2xl font-semibold text-(--color-ink)">
+        Who this is for
+      </h2>
+      <p>
+        B2B operators and small teams who are already making sales or running the business, and
+        need the manual, error-prone parts &mdash; intake, routing, follow-up, reporting &mdash;
+        automated without breaking under real volume. I've done this work for a real-estate
+        brokerage and for a local food business; the underlying problem (data getting lost between
+        systems that don't talk to each other) isn't specific to either vertical.
+      </p>
+
+      {
+        proofProjects.length > 0 && (
+          <>
+            <h2 class="font-display mb-4 mt-12 text-2xl font-semibold text-(--color-ink)">
+              Proof, not promises
+            </h2>
+            <div class="not-prose grid gap-6 sm:grid-cols-2 my-6">
+              {proofProjects.map((project) => (
+                <Card
+                  href={`/projects/${project.id}/`}
+                  title={project.data.title}
+                  description={project.data.description}
+                  pubDate={project.data.pubDate}
+                  tags={project.data.tags}
+                >
+                  {project.data.impact && (
+                    <p class="mt-2 border-t border-(--color-border) pt-2 text-sm font-medium text-(--color-accent)">
+                      {project.data.impact}
+                    </p>
+                  )}
+                </Card>
+              ))}
+            </div>
+          </>
+        )
+      }
+
+      <h2 class="font-display mb-4 mt-12 text-2xl font-semibold text-(--color-ink)">
+        The toolkit
+      </h2>
+      <ul class="space-y-3 pl-5 list-disc my-6">
+        <li><strong>Languages & logic:</strong> TypeScript, Node.js, Python, JSON Schema validation</li>
+        <li><strong>Automation & flow:</strong> n8n, custom webhooks, message queues (BullMQ/Redis)</li>
+        <li><strong>Data & AI:</strong> PostgreSQL, Supabase, LLM integration with structured outputs</li>
+        <li><strong>Infrastructure:</strong> Docker, Cloudflare, Git-versioned deploys</li>
+      </ul>
+
+      <hr class="my-12 border-(--color-border)" />
+
+      <div class="not-prose flex flex-col items-start gap-4 border-l-2 border-(--color-accent) pl-5">
+        <h2 class="font-display text-2xl font-semibold text-(--color-ink)">
+          If something here fits what you're dealing with, let's talk.
+        </h2>
+        <p class="text-(--color-ink-muted)">
+          Tell me where the manual work is piling up and what you've already tried. I'll tell you
+          honestly whether this is a fit.
+        </p>
+        <a
+          href={CONTACT_PATH}
+          class="label-mono bg-(--color-accent) px-6 py-3 text-xs text-(--color-surface) transition-transform hover:-translate-y-0.5"
+        >
+          Start the Conversation
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

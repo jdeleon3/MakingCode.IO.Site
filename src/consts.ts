@@ -3,7 +3,7 @@
 
 export const SITE_TITLE = 'MakingCode';
 export const SITE_DESCRIPTION =
-  'Automated systems engineering for real estate brokerages and B2B operators.';
+  'Build logs from 14 years in enterprise software, now applied to AI/ML and business automation.';
 export const SITE_URL = 'https://makingcode.io';
 
 export interface NavLink {
@@ -13,9 +13,11 @@ export interface NavLink {
 
 export const NAV_LINKS: NavLink[] = [
   { href: '/', label: 'Home' },
-  { href: '/projects/', label: 'Projects' },
   { href: '/blog/', label: 'Blog' },
+  { href: '/projects/', label: 'Projects' },
   { href: '/about/', label: 'About' },
+  { href: '/work-with-me/', label: 'Work with me' },
 ];
 
 export const CONTACT_PATH = '/contact/';
+export const WORK_WITH_ME_PATH = '/work-with-me/';

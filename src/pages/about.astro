@@ -1,85 +1,89 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { CONTACT_PATH } from '../consts';
+import { WORK_WITH_ME_PATH } from '../consts';
 ---
 
-<BaseLayout title="About" description="Enterprise roots. Automated execution. Who's building your infrastructure.">
+<BaseLayout
+  title="About"
+  description="14 years of enterprise software experience, now expanding into AI/ML and business automation. What I've built, and what I haven't."
+>
   <section class="mx-auto max-w-3xl px-6 py-24">
     <span class="label-mono text-xs text-(--color-accent)">About</span>
     <h1 class="font-display mb-8 mt-3 text-4xl font-semibold text-(--color-ink)">
-      Engineering, not guesswork.
+      What I've actually built, and where I haven't.
     </h1>
-    
+
     <div class="prose">
       <p>
-        I'm John DeLeon, the engineer behind MakingCode. I design and build automated systems for
-        businesses that run on reliability, not hype &mdash; real estate brokerages, service
-        operators, and teams who need software that works the same way at 2am as it does at 2pm.
+        I'm John DeLeon. 14 years in enterprise software, most of it in the insurance industry,
+        writing C# microservices for carrier and web integrations &mdash; promoted from developer
+        to Lead Software Developer to Software Engineer along the way. For 5 of those years I was
+        the Java technical lead directing an event-driven claims-system implementation alongside
+        the software provider.
       </p>
       <p>
-        I don't build superficial AI wrappers. I build deterministic, production-grade infrastructure 
-        for operators who cannot afford payload drops or unexpected downtime.
+        I finished an MS in Computer Science at Angelo State University in December 2025, with an
+        ML focus and Python coursework. That degree, not a bootcamp or a weekend course, is where
+        the AI/ML side of this started.
       </p>
 
       <hr class="my-12 border-(--color-border)" />
 
-      <h2 class="font-display mb-4 text-2xl font-semibold text-(--color-ink)">
-        Enterprise Roots. Automated Execution.
+      <h2 class="font-display mb-4 text-2xl font-semibold text-(--color-ink)">The throughline</h2>
+      <p>
+        14 years of enterprise experience, now deliberately expanding into AI and business
+        automation. Not a pivot away from what I know &mdash; an extension of it. That's what this
+        site is: the record of that extension, including the parts that are still unresolved.
+      </p>
+
+      <h2 class="font-display mb-4 mt-12 text-2xl font-semibold text-(--color-ink)">
+        What I've built
+      </h2>
+      <ul class="space-y-4 pl-5 list-disc my-6">
+        <li>
+          <strong>A DOD-funded capstone</strong> &mdash; a Kafka/Spark/Neo4j/TimescaleDB pipeline
+          training graph neural network models for anomaly detection with explainability, run
+          against a real IEEE Dataport hardware-in-the-loop testbed dataset. This was a class
+          project, not a production deployment.
+        </li>
+        <li>
+          <strong>A fraud detector for job postings</strong> &mdash; text classification with a
+          full backend/frontend and an AWS CDK deployment around it. Side project, built to see the
+          whole pipeline through, not just the model.
+        </li>
+        <li>
+          <strong>A production ordering site</strong> for a real cottage-food bakery (Astro,
+          Supabase, Cloudflare) &mdash; I directed an AI-assisted build with Claude Code, meaning I
+          prompted, reviewed, and evaluated its output rather than hand-writing every line, and
+          configured the self-hosted n8n automation behind it. This one is live and in use, not a
+          demo.
+        </li>
+      </ul>
+
+      <h2 class="font-display mb-4 mt-12 text-2xl font-semibold text-(--color-ink)">
+        What I don't have standing on
       </h2>
       <p>
-        Most automation architectures break under load because they lack defensive design. My approach 
-        is built on <strong>14 years of professional software engineering experience</strong> architecting 
-        high-availability backend systems, enterprise integration pipelines, and core business infrastructure.
-      </p>
-      <p>
-        When I design an automation workflow, I apply the same rigorous engineering standards required by 
-        enterprise systems:
+        Two things I won't pretend expertise in just because I touch them:
       </p>
       <ul class="space-y-3 pl-5 list-disc my-6">
         <li>
-          <strong>True Idempotency:</strong> Ensuring that if an API webhook fires three times due to a 
-          network stutter, your CRM doesn't get flooded with duplicate entries.
+          <strong>Performance engineering and security.</strong> I think about them when I build.
+          I don't have deep expertise in either, and I won't write like I do.
         </li>
         <li>
-          <strong>Defensive Error Routing:</strong> Building asynchronous "fail-loud" loops so that if an 
-          LLM returns a malformed payload, the data is quarantined and self-healed, never silently dropped.
-        </li>
-        <li>
-          <strong>Data Modeling Integrity:</strong> Constructing clean relational schemas behind the scenes 
-          so your automated tools seamlessly feed your long-term reporting metrics.
+          <strong>Frontend design.</strong> I'm mid at best. I lean on AI tooling to do the actual
+          design work, and I'll say so when it's relevant.
         </li>
       </ul>
 
       <hr class="my-12 border-(--color-border)" />
 
-      <h2 class="font-display mb-4 text-2xl font-semibold text-(--color-ink)">
-        The Toolkit
-      </h2>
-      <ul class="space-y-3 pl-5 list-disc my-6">
-        <li><strong>Languages & Logic:</strong> TypeScript, Node.js, Python, Strict JSON Schema Validation</li>
-        <li><strong>Automation & Flow:</strong> n8n, Custom Webhooks, Message Queues (BullMQ/Redis)</li>
-        <li><strong>Data & AI Stack:</strong> PostgreSQL, Supabase, Advanced LLM Integration (Structured Outputs), Semantic Routing</li>
-        <li><strong>Infrastructure:</strong> Docker, Cloudflare, Version-Controlled Git Architectures</li>
-      </ul>
-
-      <hr class="my-12 border-(--color-border)" />
-
-      <h2 class="font-display mb-4 text-xl font-semibold text-(--color-ink)">
-        Ready to remove the manual work?
-      </h2>
-      <p class="mb-8">
-        If you are evaluating whether an automated system could remove manual friction, prevent data loss, 
-        or accelerate response times in your operation, let's look at the math.
+      <p>
+        If you want the build logs, they're on the <a href="/blog/">blog</a>. If you're evaluating
+        whether to hire me for automation or AI-integration work, that's a separate conversation
+        &mdash; see <a href={WORK_WITH_ME_PATH}>what I work on</a>.
       </p>
-      
-      <div class="mt-8">
-        <a
-        href={CONTACT_PATH}
-        class="label-mono bg-(--color-accent) px-6 py-3 text-xs text-(--color-surface) transition-transform hover:-translate-y-0.5"
-      >
-          START A STRUCTURAL SCOPING CONVERSATION
-        </a>
-      </div>
     </div>
   </section>
 </BaseLayout>

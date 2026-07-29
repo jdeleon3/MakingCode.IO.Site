@@ -1,25 +1,28 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
-import RealEstateSolutions from '../components/RealEstateSolutions.astro';
 import Card from '../components/Card.astro';
 import { getCollection } from 'astro:content';
-import { CONTACT_PATH } from '../consts';
+import { WORK_WITH_ME_PATH } from '../consts';
 
 const latestPosts = (await getCollection('blog'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+
+const featuredProjects = (await getCollection('projects'))
+  .filter((project) => project.data.featured)
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
   .slice(0, 3);
 ---
 
 <BaseLayout>
   <Hero />
-  <RealEstateSolutions />
 
   <section class="mx-auto max-w-6xl px-6 py-24">
     <div class="mb-12 flex flex-col gap-2">
-      <span class="label-mono text-xs text-(--color-accent)">From the Blog</span>
+      <span class="label-mono text-xs text-(--color-accent)">Latest Writing</span>
       <h2 class="font-display text-3xl font-semibold text-(--color-ink)">
-        Architectural trade-offs, explained.
+        Build logs, not tutorials.
       </h2>
     </div>
 
@@ -38,17 +41,45 @@ const latestPosts = (await getCollection('blog'))
     </div>
   </section>
 
-  <section class="border-t border-(--color-border) bg-(--color-surface-raised)">
-    <div class="mx-auto flex max-w-6xl flex-col items-center gap-6 px-6 py-24 text-center">
+  {
+    featuredProjects.length > 0 && (
+      <section class="border-t border-(--color-border) bg-(--color-surface-raised)">
+        <div class="mx-auto max-w-6xl px-6 py-24">
+          <div class="mb-12 flex flex-col gap-2">
+            <span class="label-mono text-xs text-(--color-accent)">Recent Work</span>
+            <h2 class="font-display text-3xl font-semibold text-(--color-ink)">Things I've actually shipped.</h2>
+          </div>
+          <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {featuredProjects.map((project) => (
+              <Card
+                href={`/projects/${project.id}/`}
+                title={project.data.title}
+                description={project.data.description}
+                pubDate={project.data.pubDate}
+                tags={project.data.tags}
+              >
+                {project.data.impact && (
+                  <p class="mt-2 border-t border-(--color-border) pt-2 text-sm font-medium text-(--color-accent)">
+                    {project.data.impact}
+                  </p>
+                )}
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="border-t border-(--color-border)">
+    <div class="mx-auto flex max-w-6xl flex-col items-center gap-4 px-6 py-24 text-center">
       <h2 class="font-display max-w-xl text-3xl font-semibold text-(--color-ink)">
-        Ready to remove the manual work from your operation?
+        Hit the same wall translating experience into AI/automation work?
       </h2>
-      <a
-        href={CONTACT_PATH}
-        class="label-mono bg-(--color-accent) px-6 py-3 text-xs text-(--color-surface) transition-transform hover:-translate-y-0.5"
-      >
-        Contact
-      </a>
+      <p class="max-w-lg text-(--color-ink-muted)">
+        Reply on any post and tell me what actually worked for you. If you're looking to hire
+        instead, see <a href={WORK_WITH_ME_PATH} class="text-(--color-accent) underline underline-offset-4">what I work on</a>.
+      </p>
     </div>
   </section>
 </BaseLayout>

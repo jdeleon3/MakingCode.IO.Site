@@ -5,12 +5,12 @@ interface Props {
   pubDate: Date;
   updatedDate?: Date;
   tags?: string[];
-  industry?: string;
+  domain?: string;
   techStack?: string[];
   impact?: string;
 }
 
-const { pubDate, updatedDate, tags, industry, techStack, impact } = Astro.props;
+const { pubDate, updatedDate, tags, domain, techStack, impact } = Astro.props;
 ---
 
 <div class="flex flex-col gap-3 text-(--color-ink-muted)">
@@ -27,11 +27,11 @@ const { pubDate, updatedDate, tags, industry, techStack, impact } = Astro.props;
   </div>
 
   {
-    (tags?.length || industry) && (
+    (tags?.length || domain) && (
       <div class="label-mono flex flex-wrap gap-2 text-[11px]">
-        {industry && (
+        {domain && (
           <span class="border border-(--color-accent) px-2 py-0.5 text-(--color-accent)">
-            {industry}
+            {domain}
           </span>
         )}
         {tags?.map((tag) => (
