@@ -1,10 +1,11 @@
 ---
-title: 'Order Intake & Mini-CRM Template for Local Makers'
-description: 'A tactical breakdown of a pickup-only order intake site and single-admin mini-CRM built for a cottage-food bakery — and how it generalizes into a reusable template for any local maker selling made-to-order goods.'
+title: 'Building a Pickup-Only Order Intake and Mini-CRM for a Cottage Bakery'
+description: "A tactical breakdown of the pickup-only order intake site and single-admin mini-CRM I built for my wife's cottage-food bakery — and the architectural choices behind it."
 pubDate: 2026-07-12
+heroImage: '../../assets/projects/mini-crm.png'
 tags: ['local-business', 'food-and-beverage', 'template', 'automation', 'security']
 domain: 'Local Food & Maker Businesses'
-standing: 'Production build for a real client, self-directed end to end'
+standing: "Production build for my wife's cottage-food bakery, self-directed end to end"
 techStack:
   [
     'Astro',
@@ -16,13 +17,13 @@ techStack:
     'n8n',
     'Zod',
   ]
-impact: 'Replaced DM/text/spreadsheet order tracking with a spam-guarded, server-validated intake flow and a single-admin dashboard the owner checks once a day.'
+impact: "Replaced DM/text/notebook order tracking for my wife's bakery with a spam-guarded, server-validated intake flow and a single-admin dashboard she checks once a day."
 featured: true
 ---
 
-[RD Creations](https://rdcreationsvm.com), a cottage-food bakery in Valley Mills, Texas, was running its entire order book out of Instagram DMs, text threads, and a notebook by the register. It worked while every customer was someone the owner knew personally. It stopped working the moment order volume outgrew one person's memory: details got lost between the DM and the oven, nobody could say for certain who'd paid, and pickup times collided because nothing was written down in one place.
+[RD Creations](https://rdcreationsvm.com), my wife's cottage-food bakery, was running its entire order book out of Instagram DMs, text threads, and a notebook by the register. It wasn't a matter of order volume outgrowing her, it was that things were just hard to keep track of: details got lost between the DM and the oven, checking who had paid meant digging back through texts or payment app histories, and pickup times collided because nothing was written down in one place.
 
-I built a pickup-only order intake site and a single-admin mini-CRM to fix that — and because the underlying shape of the problem isn't specific to bakeries, I'm packaging it as a template for any small operator selling made-to-order or limited-batch goods locally.
+I built a pickup-only order intake site and a single-admin mini-CRM to give her a clean system of record. Here is how it's structured, why I built it this way, and the technical trade-offs behind it.
 
 <img src="/images/projects/order-intake-mini-crm/storefront-cart-checkout.png" alt="Live storefront: cart summary with subtotal and required deposit, and the pickup-only checkout form" loading="lazy" />
 
@@ -32,17 +33,15 @@ I built a pickup-only order intake site and a single-admin mini-CRM to fix that 
 
 Most businesses this size aren't failing at marketing — they're failing at logistics. They're already making sales; they just can't reliably track what was ordered, by whom, for when, and whether it's been paid for. Off-the-shelf e-commerce platforms solve a problem they don't have (real-time inventory, instant card checkout, shipping) while ignoring the one they do: everything is made to order, fulfillment is a scheduled local pickup, and payment happens out-of-band (meaning the platform coordinates and validates the order details, but the actual money moves directly through your existing cash, Venmo, or manual Stripe invoice workflows) — cash, Venmo, or a Stripe invoice sent after the fact, not a checkout form.
 
-## Ideal client profile
+## Why off-the-shelf tools didn't fit
 
-- **Cottage-food producers & home bakers** — many operate under laws that already restrict them to local pickup and capped sales volume, so "no shipping, fixed service area" isn't a limitation, it's how they're legally required to run anyway.
-- **Farmers-market and seasonal vendors** — pre-orders for a fixed market day, with a catalog that needs to change week to week without a developer involved.
-- **Small-batch specialty food makers** (jams, sauces, meal prep, small caterers) — no SKU-level inventory to sync, just an order queue to accept or reject.
-- **Local craft and maker businesses** (woodworking, candles, engraving, pottery) — custom, per-item pricing that maps naturally onto "review and accept, then invoice."
-- **Solo service businesses working quote-then-invoice** (private chefs, local florists, mobile detailers, print shops) — one person doing the making, the answering, and the bookkeeping, from a phone, between jobs.
+- **Cottage-food laws & local focus** — Texas laws restrict cottage bakers to direct local sales, so "no shipping, fixed service area" isn't a limitation, it's how the business is legally required to run anyway.
+- **Made-to-order catalog** — Pre-orders for specific pickup dates, with a catalog that changes periodically without needing complex inventory tracking.
+- **Out-of-band payments** — No SKU-level inventory to sync; payment happens via cash, Venmo, or manual invoice rather than instant card authorization.
 
-The common thread: one-person or family-run, no dedicated admin staff, and already collecting payment out-of-band. This template formalizes that behavior instead of forcing it into a workflow built for retail chains.
+The common thread: a one-person operation with no dedicated admin staff, collecting payment out-of-band. This custom build formalizes that workflow instead of forcing the bakery into tools built for retail chains.
 
-**Not a fit:** multi-location retail, real-time multi-SKU inventory, same-day/instant checkout expectations, or high enough order volume to need automated in-app payment capture.
+**Out of scope for this build:** multi-location retail, real-time multi-SKU inventory, same-day/instant checkout expectations, or automated in-app payment processing.
 
 ## What I built
 
@@ -102,13 +101,17 @@ The site's job stops at "validate the order and store it." Everything that happe
 
 **1. Order intake alert.** The moment a customer submits an order, the intake webhook fires and n8n formats it into a plain-language summary — customer, items, pickup date, subtotal, deposit — and pushes it to the owner over Telegram and email within seconds. The value here isn't glamorous, but it's the difference between checking a dashboard out of habit and knowing the instant a sale happens, from a phone, without opening the site at all.
 
-**2. Acceptance & invoice email.** Flipping an order to "Accepted" in the admin dashboard fires a second webhook, and n8n sends the customer an itemized HTML invoice — line items, subtotal, required deposit, and one-click links to whichever payment apps the business already uses to get paid. This replaces the step where the owner would otherwise sit down and hand-write a payment request: acceptance and invoicing become the same action instead of two.
+<img src="/images/projects/order-intake-mini-crm/order-intake-flow.png" alt="n8n flow view for order intake notification." loading="lazy" />
+
+**2. Acceptance & invoice email.** Flipping an order to "Accepted" in the admin dashboard fires a second webhook, and n8n sends the customer an itemized HTML invoice — line items, subtotal, required deposit, and one-click links to whichever payment apps the business already uses to get paid. This replaces the step where she would otherwise sit down and hand-write a payment request: acceptance and invoicing become the same action instead of two.
+
+<img src="/images/projects/order-intake-mini-crm/order-approved-flow.png" alt="n8n flow view for order intake notification." loading="lazy" />
 
 **3. Post-pickup review request.** A scheduled trigger runs every morning, queries the database for orders picked up the day before, and emails each of those customers a review-request link. Nobody has to remember to ask — happy customers get asked automatically, on a fixed schedule, whether or not the owner thought about it that day.
 
-The common thread: none of this logic lives in the website's codebase. The site only knows how to sign and fire two webhook events; everything downstream — which payment apps to link, what the emails look like, when review requests go out — is a workflow the business (or their agency) can edit without a deploy. Swapping Venmo for Stripe, or email for SMS, is an afternoon in the n8n editor, not a pull request.
+<img src="/images/projects/order-intake-mini-crm/customer-followup-flow.png" alt="n8n flow view for order intake notification." loading="lazy" />
 
-<img src="https://placehold.co/1200x630/0a0b0d/259ae8?text=n8n+Workflow+Canvas+%E2%80%94+Screenshot+Pending" alt="Placeholder: n8n workflow canvas showing the order-intake, acceptance-invoice, and review-request automations" loading="lazy" />
+The common thread: none of this logic lives in the website's codebase. The site only knows how to sign and fire two webhook events; everything downstream — which payment apps to link, what the emails look like, when review requests go out — is a workflow the business (or their agency) can edit without a deploy. Swapping Venmo for Stripe, or email for SMS, is an afternoon in the n8n editor, not a pull request.
 
 ---
 
@@ -136,7 +139,7 @@ The honest gap: there's no application-level rate limiting on the order-submissi
 
 Every choice here optimizes for the same constraint: a non-technical single admin and a thin margin business that can't absorb hosting or SaaS fees that scale with usage.
 
-| CHOICE | WHY IT FITS THIS TEMPLATE | MORE COMMON ALTERNATIVE | WHERE THE ALTERNATIVE ACTUALLY WINS |
+| CHOICE | WHY IT FITS THIS BUILD | MORE COMMON ALTERNATIVE | WHERE THE ALTERNATIVE ACTUALLY WINS |
 | --- | --- | --- | --- |
 | **Astro** (server output) | Ships near-zero JS by default; server rendering is needed for real checkout validation, not just static pages | Next.js / Remix | Larger hiring pool, more mature ecosystem — better if the app later needs to become a heavily interactive SPA |
 | **Cloudflare Pages + Workers** | Free tier covers this traffic entirely; no servers to patch; same account as R2 and Turnstile | Vercel / Netlify | Smoother DX for preview environments and framework auto-detection; the default expectation for most frontend agencies |
@@ -148,12 +151,12 @@ Every choice here optimizes for the same constraint: a non-technical single admi
 
 ## Outcome
 
-RD Creations went from DMs-and-a-notebook to a spam-guarded intake form and a dashboard the owner checks once a day. Every order is priced server-side, every status change is visible at a glance, and payment gets tracked as it actually happens — out-of-band, the way these businesses really operate. The same shape — catalog, pickup-only intake, invoice-based payment, one-person admin — is now the starting point for the next local maker who needs their order book out of their inbox.
+RD Creations went from DMs-and-a-notebook to a spam-guarded intake form and a dashboard my wife checks once a day. Every order is priced server-side, every status change is visible at a glance, and payment gets tracked as it actually happens — out-of-band, the way these small operations really run.
 
 ---
 
 ## What I haven't tested beyond this
 
-One client, one build. I don't yet know how this holds up against a catalog with real SKU-level variants, or a service area with a hundred towns instead of a handful — those are the things that would change my mind about calling this "generalized" rather than "generalizable."
+One build, one bakery. I don't know how this holds up against a catalog with real SKU-level variants or a service area spanning a hundred towns instead of a handful — those are the boundaries where this architecture would need to change.
 
-If you're running a business out of DMs and a notebook and this shape fits, I do this kind of work — see [what I work on](/work-with-me/).
+If you've hit this same wall tracking orders across DMs, texts, and a notebook, reply and tell me what actually worked for you.

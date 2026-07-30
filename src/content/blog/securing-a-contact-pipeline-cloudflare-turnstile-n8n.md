@@ -2,6 +2,7 @@
 title: 'Securing a Contact Pipeline: Astro, Cloudflare Pages Functions, Turnstile, and n8n'
 description: 'How I replaced hardcoded mailto links with an edge gateway that verifies humans, signs its own JWT, and hands off to a self-hosted n8n workflow — and the two local-dev gotchas that came with it.'
 pubDate: 2026-07-08
+heroImage: '../../assets/blog/securing-contact-pipeline.png'
 tags: ['architecture', 'automation', 'security']
 ---
 

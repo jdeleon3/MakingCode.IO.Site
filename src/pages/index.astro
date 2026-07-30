@@ -21,7 +21,7 @@ const featuredProjects = (await getCollection('projects', isPublished))
     <div class="mb-12 flex flex-col gap-2">
       <span class="label-mono text-xs text-(--color-accent)">Latest Writing</span>
       <h2 class="font-display text-3xl font-semibold text-(--color-ink)">
-        Build logs, not tutorials.
+        Notes from the journey, written as it happens.
       </h2>
     </div>
 
@@ -46,7 +46,7 @@ const featuredProjects = (await getCollection('projects', isPublished))
         <div class="mx-auto max-w-6xl px-6 py-24">
           <div class="mb-12 flex flex-col gap-2">
             <span class="label-mono text-xs text-(--color-accent)">Recent Work</span>
-            <h2 class="font-display text-3xl font-semibold text-(--color-ink)">Things I've actually shipped.</h2>
+            <h2 class="font-display text-3xl font-semibold text-(--color-ink)">See what I've built.</h2>
           </div>
           <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {featuredProjects.map((project) => (

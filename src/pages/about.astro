@@ -1,11 +1,11 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { WORK_WITH_ME_PATH } from '../consts';
+import { WORK_WITH_ME_PATH, YEARS_IN_ENTERPRISE_SOFTWARE } from '../consts';
 ---
 
 <BaseLayout
   title="About"
-  description="14 years of enterprise software experience, now expanding into AI/ML and business automation. What I've built, and what I haven't."
+  description={`${YEARS_IN_ENTERPRISE_SOFTWARE} years of enterprise software experience, now expanding into AI/ML and business automation. What I've built, and what I haven't.`}
 >
   <section class="mx-auto max-w-3xl px-6 py-24">
     <span class="label-mono text-xs text-(--color-accent)">About</span>
@@ -15,11 +15,11 @@ import { WORK_WITH_ME_PATH } from '../consts';
 
     <div class="prose">
       <p>
-        I'm John DeLeon. 14 years in enterprise software, most of it in the insurance industry,
-        writing C# microservices for carrier and web integrations &mdash; promoted from developer
-        to Lead Software Developer to Software Engineer along the way. For 5 of those years I was
-        the Java technical lead directing an event-driven claims-system implementation alongside
-        the software provider.
+        I'm John DeLeon. {YEARS_IN_ENTERPRISE_SOFTWARE} years in enterprise software, most of it in
+        the insurance industry, writing C# microservices for carrier and web integrations &mdash;
+        promoted from developer to Lead Software Developer to Software Engineer along the way. For 5
+        of those years I was the Java technical lead directing an event-driven claims-system
+        implementation alongside the software provider.
       </p>
       <p>
         I finished an MS in Computer Science at Angelo State University in December 2025, with an
@@ -31,9 +31,10 @@ import { WORK_WITH_ME_PATH } from '../consts';
 
       <h2 class="font-display mb-4 text-2xl font-semibold text-(--color-ink)">The throughline</h2>
       <p>
-        14 years of enterprise experience, now deliberately expanding into AI and business
-        automation. Not a pivot away from what I know &mdash; an extension of it. That's what this
-        site is: the record of that extension, including the parts that are still unresolved.
+        {YEARS_IN_ENTERPRISE_SOFTWARE} years of enterprise experience, now deliberately expanding
+        into AI and business automation. Not a pivot away from what I know &mdash; an extension of
+        it. That's what this site is: the record of that extension, including what I still don't
+        know.
       </p>
 
       <h2 class="font-display mb-4 mt-12 text-2xl font-semibold text-(--color-ink)">
@@ -82,7 +83,7 @@ import { WORK_WITH_ME_PATH } from '../consts';
       <hr class="my-12 border-(--color-border)" />
 
       <p>
-        If you want the build logs, they're on the <a href="/blog/">blog</a>. If you're evaluating
+        If you want the field notes, they're on the <a href="/blog/">blog</a>. If you're evaluating
         whether to hire me for automation or AI-integration work, that's a separate conversation
         &mdash; see <a href={WORK_WITH_ME_PATH}>what I work on</a>.
       </p>

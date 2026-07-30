@@ -2,6 +2,7 @@
 title: 'Bridging the Black Box: Explainable Anomaly Detection for Critical Infrastructure'
 description: 'A DOD/ARL-funded capstone: a Kafka/Spark/Neo4j/TimescaleDB pipeline feeding a two-stage heterogeneous graph transformer that hits 87.8% accuracy detecting attacks on a hardware-in-the-loop water testbed — trained on 369 labeled graph snapshots, a number that should temper every other number in this post.'
 pubDate: 2026-07-29
+heroImage: '../../assets/projects/anomaly-detection.png'
 tags: ['machine-learning', 'security', 'graph-neural-networks', 'academic-research']
 domain: 'Critical Infrastructure Security / Explainable AI'
 techStack:

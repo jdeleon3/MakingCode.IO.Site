@@ -2,7 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Card from '../components/Card.astro';
 import { getCollection } from 'astro:content';
-import { CONTACT_PATH } from '../consts';
+import { CONTACT_PATH, YEARS_IN_ENTERPRISE_SOFTWARE } from '../consts';
 import { isPublished, byNewestFirst } from '../lib/publishing';
 
 const proofProjects = (await getCollection('projects', isPublished))
@@ -13,7 +13,7 @@ const proofProjects = (await getCollection('projects', isPublished))
 
 <BaseLayout
   title="Work with me"
-  description="AI-integration and business-automation engineering, built with 14 years of enterprise software discipline behind it."
+  description={`AI-integration and business-automation engineering, built with ${YEARS_IN_ENTERPRISE_SOFTWARE} years of enterprise software discipline behind it.`}
 >
   <section class="mx-auto max-w-3xl px-6 py-24">
     <span class="label-mono text-xs text-(--color-accent)">Work with me</span>
@@ -25,8 +25,8 @@ const proofProjects = (await getCollection('projects', isPublished))
       <p>
         I design and build automated systems for businesses that need software to keep working when
         no one's watching it &mdash; webhook pipelines, LLM-backed workflows, and the n8n
-        orchestration around them. 14 years of enterprise engineering is the standard I hold that
-        work to, not a credential I'm bolting onto an AI wrapper.
+        orchestration around them. {YEARS_IN_ENTERPRISE_SOFTWARE} years of enterprise engineering is
+        the standard I hold that work to, not a credential I'm bolting onto an AI wrapper.
       </p>
 
       <hr class="my-12 border-(--color-border)" />
@@ -64,7 +64,7 @@ const proofProjects = (await getCollection('projects', isPublished))
         proofProjects.length > 0 && (
           <>
             <h2 class="font-display mb-4 mt-12 text-2xl font-semibold text-(--color-ink)">
-              Proof, not promises
+              See me in action
             </h2>
             <div class="not-prose grid gap-6 sm:grid-cols-2 my-6">
               {proofProjects.map((project) => (

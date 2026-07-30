@@ -3,7 +3,7 @@ title: 'Architecting Idempotent Webhook Pipelines'
 description: 'Why "at-least-once" delivery breaks naive CRM integrations, and the idempotency-key pattern that fixes it for good.'
 pubDate: 2026-05-18
 updatedDate: 2026-06-02
-heroImage: '../../assets/blog/webhook-pipelines.jpg'
+heroImage: '../../assets/blog/webhook-pipelines.png'
 tags: ['architecture', 'automation', 'reliability']
 ---
 

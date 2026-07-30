@@ -2,6 +2,7 @@
 title: 'A Job-Posting Fraud Classifier — and the Gap Between the Model and the Demo'
 description: 'A class-project XGBoost classifier hits 98% accuracy and a 0.985 ROC-AUC detecting fake job postings offline. The deployed demo does not call it — the API route is a coin flip with a TODO comment above it. Here is both halves of that story.'
 pubDate: 2026-07-29
+heroImage: '../../assets/projects/fraud-classifier.png'
 tags: ['machine-learning', 'nlp', 'aws', 'class-project']
 domain: 'Text Classification / NLP'
 techStack:
