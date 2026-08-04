@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 520" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #0f1115; }
+      .topbar { fill: #161920; stroke: #26282d; stroke-width: 1; }
+      .sidebar { fill: #12141a; stroke: #26282d; stroke-width: 1; }
+      .card { fill: #1a1d24; stroke: #2a2d35; stroke-width: 1; rx: 4px; }
+      .card-active { fill: #1e2430; stroke: #259ae8; stroke-width: 1.5; rx: 4px; }
+      .text-head { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 15px; fill: #ece7dd; }
+      .text-sub { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #8d8d86; }
+      .text-mono { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 12px; fill: #259ae8; }
+      .tab-active { fill: #259ae8; font-family: system-ui, sans-serif; font-weight: 600; font-size: 13px; }
+      .tab-inactive { fill: #8d8d86; font-family: system-ui, sans-serif; font-size: 13px; }
+    </style>
+  </defs>
+
+  <rect width="1100" height="520" class="bg" />
+
+  <!-- Topbar -->
+  <rect width="1100" height="48" class="topbar" />
+  <circle cx="24" cy="24" r="6" fill="#f43f5e" />
+  <circle cx="42" cy="24" r="6" fill="#fbbf24" />
+  <circle cx="60" cy="24" r="6" fill="#10b981" />
+
+  <text x="90" y="29" font-family="ui-monospace, monospace" font-weight="700" font-size="14" fill="#ece7dd">ce operator console</text>
+  <text x="260" y="29" class="tab-active">Dashboard</text>
+  <text x="370" y="29" class="tab-inactive">Run Console</text>
+  <text x="490" y="29" class="tab-inactive">Brief Review</text>
+  <text x="610" y="29" class="tab-active">Grade &amp; Review</text>
+  <text x="750" y="29" class="tab-inactive">Renditions</text>
+
+  <!-- Sidebar -->
+  <g transform="translate(0, 48)">
+    <rect width="210" height="472" class="sidebar" />
+    <text x="16" y="30" class="text-sub" font-size="11">ACTIVE PROJECT</text>
+    <text x="16" y="48" class="text-head" font-size="13">MakingCode.IO.Site</text>
+
+    <text x="16" y="90" class="text-sub" font-size="11">SECURITY GATES</text>
+    <rect x="16" y="100" width="178" height="28" fill="#18221c" stroke="#10b981" rx="4" />
+    <text x="26" y="118" font-family="monospace" font-size="11" fill="#34d399">G1 Allowlist: PASS</text>
+
+    <rect x="16" y="136" width="178" height="28" fill="#18221c" stroke="#10b981" rx="4" />
+    <text x="26" y="154" font-family="monospace" font-size="11" fill="#34d399">G2 Gitleaks: PASS</text>
+
+    <text x="16" y="200" class="text-sub" font-size="11">BUDGET GOVERNOR</text>
+    <text x="16" y="220" font-family="monospace" font-size="12" fill="#ece7dd">Used: $0.42 / $2.00</text>
+    <rect x="16" y="230" width="178" height="8" fill="#26282d" rx="4" />
+    <rect x="16" y="230" width="37" height="8" fill="#259ae8" rx="4" />
+  </g>
+
+  <!-- Main Content Area -->
+  <!-- Left Panel: Brief Candidates -->
+  <g transform="translate(230, 68)">
+    <rect width="400" height="432" class="card" />
+    <text x="20" y="30" class="text-head">Candidate Briefs (ce harvest)</text>
+    <text x="20" y="48" class="text-sub">Select candidate brief to inspect grade &amp; verification</text>
+
+    <!-- Brief Card 1 (Selected) -->
+    <g transform="translate(15, 65)">
+      <rect width="370" height="105" class="card-active" />
+      <rect x="290" y="12" width="68" height="20" fill="#1e3a8a" rx="3" />
+      <text x="324" y="26" text-anchor="middle" font-family="monospace" font-size="11" fill="#60a5fa">SCORE 92</text>
+      <text x="14" y="28" font-family="system-ui, sans-serif" font-weight="700" font-size="13" fill="#ece7dd">Building Content Engine in 3 Days</text>
+      <text x="14" y="48" class="text-sub">Tactical breakdown of AI pipeline, G1/G2</text>
+      <text x="14" y="66" class="text-sub">gates, and voice matching.</text>
+      <text x="14" y="88" class="text-mono" font-size="11">Selected • Ready for REVIEW.html</text>
+    </g>
+
+    <!-- Brief Card 2 -->
+    <g transform="translate(15, 185)">
+      <rect width="370" height="90" class="card" />
+      <rect x="290" y="12" width="68" height="20" fill="#26282d" rx="3" />
+      <text x="324" y="26" text-anchor="middle" font-family="monospace" font-size="11" fill="#8d8d86">SCORE 84</text>
+      <text x="14" y="28" font-family="system-ui, sans-serif" font-weight="600" font-size="13" fill="#ece7dd">Why I Built a Custom Pipeline</text>
+      <text x="14" y="48" class="text-sub">Comparing Blotato vs custom Python pipeline</text>
+    </g>
+  </g>
+
+  <!-- Right Panel: Grade Breakdown & Review (Wider boundaries, no text overflow) -->
+  <g transform="translate(650, 68)">
+    <rect width="430" height="432" class="card" />
+    <text x="20" y="30" class="text-head">Draft Score Breakdown (Opus 5)</text>
+    
+    <g transform="translate(20, 50)">
+      <!-- Metric 1 -->
+      <text x="0" y="20" class="text-sub">Voice Guide Alignment</text>
+      <text x="335" y="20" font-family="monospace" font-size="12" fill="#10b981">95 / 100</text>
+      <rect x="0" y="28" width="390" height="6" fill="#26282d" rx="3" />
+      <rect x="0" y="28" width="370" height="6" fill="#10b981" rx="3" />
+
+      <!-- Metric 2 -->
+      <text x="0" y="60" class="text-sub">Factual Grounding (Git/Notes)</text>
+      <text x="335" y="60" font-family="monospace" font-size="12" fill="#10b981">98 / 100</text>
+      <rect x="0" y="68" width="390" height="6" fill="#26282d" rx="3" />
+      <rect x="0" y="68" width="382" height="6" fill="#10b981" rx="3" />
+
+      <!-- Metric 3 -->
+      <text x="0" y="100" class="text-sub">Technical Specificity</text>
+      <text x="335" y="100" font-family="monospace" font-size="12" fill="#259ae8">88 / 100</text>
+      <rect x="0" y="108" width="390" height="6" fill="#26282d" rx="3" />
+      <rect x="0" y="108" width="343" height="6" fill="#259ae8" rx="3" />
+    </g>
+
+    <line x1="20" y1="190" x2="410" y2="190" stroke="#26282d" />
+    <text x="20" y="215" class="text-head" font-size="14">Claim Verification Status (`ce verify`)</text>
+    
+    <rect x="20" y="230" width="390" height="155" fill="#12141a" stroke="#26282d" rx="4" />
+    <text x="32" y="254" font-family="monospace" font-size="11.5" fill="#34d399">✓ 27 commits verified in git log</text>
+    <text x="32" y="278" font-family="monospace" font-size="11.5" fill="#34d399">✓ 541 passing tests in test runner</text>
+    <text x="32" y="302" font-family="monospace" font-size="11.5" fill="#34d399">✓ 61 python files verified in src/ce</text>
+    <text x="32" y="326" font-family="monospace" font-size="11.5" fill="#34d399">✓ Dates 2026-07-27 to 2026-07-29 verified</text>
+    <text x="32" y="360" class="text-mono" font-size="11.5" fill="#67e8f9">Status: READY FOR REVIEW.html PACKAGE</text>
+  </g>
+</svg>

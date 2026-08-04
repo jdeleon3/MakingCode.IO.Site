@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1020 440" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #0a0b0d; }
+      .card { fill: #15171b; stroke: #26282d; stroke-width: 1.5; rx: 6px; }
+      .card-accent { fill: #15171b; stroke: #259ae8; stroke-width: 2; rx: 6px; }
+      .card-produce { fill: #161b26; stroke: #38bdf8; stroke-width: 2; rx: 6px; }
+      .text-title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 16px; fill: #ece7dd; }
+      .text-sub { font-family: system-ui, -apple-system, sans-serif; font-size: 11.5px; fill: #8d8d86; }
+      .text-mono { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 11.5px; fill: #259ae8; font-weight: 600; }
+      .text-human-highlight { font-family: system-ui, sans-serif; font-size: 11px; font-weight: 700; fill: #fbbf24; }
+      .badge-human { fill: #259ae81a; stroke: #259ae8; stroke-width: 1; rx: 4px; }
+      .badge-auto { fill: #26282d; stroke: #8d8d86; stroke-width: 1; rx: 4px; }
+      .badge-mixed { fill: #2e1065; stroke: #a855f7; stroke-width: 1.5; rx: 4px; }
+      .badge-text { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 10px; font-weight: 700; }
+      .arrow { stroke: #259ae8; stroke-width: 2; marker-end: url(#arrowhead); }
+      .gate-box { fill: #1c140d; stroke: #d97706; stroke-width: 1.5; rx: 4px; }
+      .gate-text { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 13px; fill: #fbbf24; font-weight: 700; }
+    </style>
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#259ae8" />
+    </marker>
+  </defs>
+
+  <rect width="1020" height="440" class="bg" />
+
+  <text x="30" y="38" class="text-title" font-size="20">Content Engine (`ce`) — End-to-End Pipeline Architecture</text>
+  <text x="30" y="60" class="text-sub" font-size="13">Human-in-the-loop content generation with non-bypassable security gates</text>
+
+  <line x1="120" y1="190" x2="900" y2="190" stroke="#26282d" stroke-width="4" />
+
+  <!-- Stage 1: SELECT -->
+  <g transform="translate(30, 100)">
+    <rect width="165" height="180" class="card" />
+    <rect x="12" y="14" width="60" height="20" class="badge-human" />
+    <text x="42" y="28" text-anchor="middle" class="badge-text" fill="#259ae8">HUMAN</text>
+    <text x="12" y="58" class="text-title">1. SELECT</text>
+    <text x="12" y="80" class="text-mono">ce sweep</text>
+    <text x="12" y="104" class="text-sub">Surfaces project</text>
+    <text x="12" y="122" class="text-sub">demand &amp; backlog</text>
+    <text x="12" y="146" class="text-sub" fill="#ece7dd">• Human picks target</text>
+  </g>
+
+  <line x1="195" y1="190" x2="225" y2="190" class="arrow" />
+
+  <!-- Stage 2: BUILD -->
+  <g transform="translate(230, 100)">
+    <rect width="165" height="180" class="card" />
+    <rect x="12" y="14" width="60" height="20" class="badge-human" />
+    <text x="42" y="28" text-anchor="middle" class="badge-text" fill="#259ae8">HUMAN</text>
+    <text x="12" y="58" class="text-title">2. BUILD</text>
+    <text x="12" y="80" class="text-mono">ce capture</text>
+    <text x="12" y="104" class="text-sub">• Git commit history</text>
+    <text x="12" y="122" class="text-sub">• Voice memos (audio)</text>
+    <text x="12" y="140" class="text-sub">• Screen captures</text>
+    <text x="12" y="160" class="text-sub" fill="#ece7dd">Real human notes</text>
+  </g>
+
+  <line x1="395" y1="190" x2="425" y2="190" class="arrow" />
+
+  <!-- Stage 3: HARVEST -->
+  <g transform="translate(430, 100)">
+    <rect width="165" height="180" class="card-accent" />
+    <rect x="12" y="14" width="50" height="20" class="badge-auto" />
+    <text x="37" y="28" text-anchor="middle" class="badge-text" fill="#8d8d86">AUTO</text>
+    <text x="12" y="58" class="text-title">3. HARVEST</text>
+    <text x="12" y="80" class="text-mono">ce harvest</text>
+    <text x="12" y="104" class="text-sub">Transcribe audio</text>
+    <text x="12" y="122" class="text-sub">External research</text>
+    <text x="12" y="144" class="text-sub">Produces 6-8 briefs</text>
+    <text x="12" y="162" font-size="10.5" fill="#a78bfa">Guarded by G1/G2</text>
+  </g>
+
+  <line x1="595" y1="190" x2="625" y2="190" class="arrow" />
+
+  <!-- Stage 4: PRODUCE -->
+  <g transform="translate(630, 100)">
+    <rect width="180" height="180" class="card-produce" />
+    <rect x="12" y="12" width="115" height="22" class="badge-mixed" />
+    <text x="70" y="27" text-anchor="middle" class="badge-text" fill="#c084fc">HUMAN + AI (80/20)</text>
+    
+    <text x="12" y="56" class="text-title" fill="#38bdf8">4. PRODUCE</text>
+    <text x="12" y="76" class="text-mono">ce produce</text>
+    <text x="12" y="94" class="text-sub">AI draft &amp; grade (80%)</text>
+    <text x="12" y="112" class="text-mono">ce verify</text>
+    
+    <rect x="8" y="124" width="164" height="46" fill="#241c15" stroke="#f59e0b" stroke-width="1.5" rx="4" />
+    <text x="16" y="142" class="text-human-highlight">✋ STOPS FOR HUMAN EDIT</text>
+    <text x="16" y="158" font-family="system-ui, sans-serif" font-size="10.5" fill="#fde047">Final 20% voice &amp; edit (Human)</text>
+  </g>
+
+  <line x1="810" y1="190" x2="840" y2="190" class="arrow" />
+
+  <!-- Stage 5: SHIP -->
+  <g transform="translate(845, 100)">
+    <rect width="150" height="180" class="card" />
+    <rect x="12" y="14" width="60" height="20" class="badge-human" />
+    <text x="42" y="28" text-anchor="middle" class="badge-text" fill="#259ae8">HUMAN</text>
+    <text x="12" y="58" class="text-title">5. SHIP</text>
+    <text x="12" y="80" class="text-mono">ce package</text>
+    <text x="12" y="104" class="text-sub">REVIEW.html</text>
+    <text x="12" y="124" class="text-sub">Manual post to</text>
+    <text x="12" y="142" class="text-sub">social &amp; site</text>
+    <text x="12" y="162" class="text-sub" fill="#ece7dd">Human operator</text>
+  </g>
+
+  <g transform="translate(210, 310)">
+    <rect width="600" height="95" class="gate-box" />
+    <text x="20" y="28" class="gate-text">HARD SECURITY GATES (Non-bypassable, hard_fail on trigger):</text>
+    <text x="20" y="52" font-family="system-ui, sans-serif" font-size="12" fill="#ece7dd">
+      <tspan font-weight="700" fill="#fbbf24">G1 · Repo Allowlist:</tspan> Default deny — project must be explicitly enabled in config/engine.yml
+    </text>
+    <text x="20" y="74" font-family="system-ui, sans-serif" font-size="12" fill="#ece7dd">
+      <tspan font-weight="700" fill="#fbbf24">G2 · Secret Scan:</tspan> gitleaks scan over commit ranges before sending to models. Diffs stripped.
+    </text>
+  </g>
+</svg>

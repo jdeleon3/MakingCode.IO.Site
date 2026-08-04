@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 450" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #0a0b0d; }
+      .card { fill: #15171b; stroke: #26282d; stroke-width: 1.5; rx: 6px; }
+      .card-governor { fill: #181524; stroke: #8b5cf6; stroke-width: 2; rx: 6px; }
+      .card-opus { fill: #141c2b; stroke: #3b82f6; stroke-width: 1.5; rx: 6px; }
+      .card-sonnet { fill: #0d211f; stroke: #10b981; stroke-width: 1.5; rx: 6px; }
+      .card-haiku { fill: #241c15; stroke: #f59e0b; stroke-width: 1.5; rx: 6px; }
+      .text-title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 16px; fill: #ece7dd; }
+      .text-sub { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #8d8d86; }
+      .text-mono { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 12px; font-weight: 600; }
+      .line-solid { stroke: #3b82f6; stroke-width: 2; marker-end: url(#arrow-blue); }
+    </style>
+    <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#3b82f6" />
+    </marker>
+  </defs>
+
+  <rect width="1040" height="450" class="bg" />
+
+  <text x="30" y="38" class="text-title" font-size="20">Multi-Tier LLM Gateway &amp; Budget Governor Architecture</text>
+  <text x="30" y="60" class="text-sub" font-size="13">Cost-controlled model routing with strict spending enforcement (`ce cost` governor)</text>
+
+  <g transform="translate(30, 100)">
+    <rect width="180" height="300" class="card" />
+    <text x="20" y="35" class="text-title" font-size="15">Pipeline Tasks</text>
+    <line x1="20" y1="48" x2="160" y2="48" stroke="#26282d" stroke-width="1" />
+    
+    <rect x="15" y="65" width="150" height="55" fill="#26282d" rx="4" />
+    <text x="25" y="86" class="text-mono" fill="#ece7dd">Briefs &amp; Grading</text>
+    <text x="25" y="104" class="text-sub">High reasoning requirement</text>
+
+    <rect x="15" y="140" width="150" height="55" fill="#26282d" rx="4" />
+    <text x="25" y="161" class="text-mono" fill="#ece7dd">Drafts &amp; Renditions</text>
+    <text x="25" y="179" class="text-sub">Creative content drafting</text>
+
+    <rect x="15" y="215" width="150" height="55" fill="#26282d" rx="4" />
+    <text x="25" y="236" class="text-mono" fill="#ece7dd">Cleanup &amp; Schema</text>
+    <text x="25" y="254" class="text-sub">Light classification tasks</text>
+  </g>
+
+  <g transform="translate(250, 100)">
+    <rect width="270" height="300" class="card-governor" />
+    <text x="20" y="35" class="text-title" fill="#c084fc">BUDGET GOVERNOR</text>
+    <text x="20" y="55" class="text-mono" fill="#a78bfa">ce cost / _check_budget()</text>
+    <line x1="20" y1="68" x2="250" y2="68" stroke="#3b0764" stroke-width="1.5" />
+
+    <text x="20" y="100" class="text-mono" fill="#ece7dd">Enforced Spending Caps:</text>
+    <text x="32" y="125" class="text-sub" fill="#e9d5ff">• Monthly Limit: <tspan font-weight="700" fill="#a855f7">$20.00 / month</tspan></text>
+    <text x="32" y="150" class="text-sub" fill="#e9d5ff">• Per-Run Limit: <tspan font-weight="700" fill="#a855f7">$2.00 / run</tspan></text>
+
+    <rect x="20" y="180" width="230" height="95" fill="#2e1065" stroke="#a855f7" stroke-width="1" rx="4" />
+    <text x="32" y="204" class="text-mono" fill="#f43f5e">Cap Action: HALT (exit 3)</text>
+    <text x="32" y="226" class="text-sub" fill="#e9d5ff">Never degrades quality silently.</text>
+    <text x="32" y="244" class="text-sub" fill="#e9d5ff">Halts run immediately if cap is</text>
+    <text x="32" y="262" class="text-sub" fill="#e9d5ff">reached before API call.</text>
+  </g>
+
+  <g transform="translate(560, 100)">
+    <rect width="450" height="85" class="card-opus" />
+    <text x="18" y="28" class="text-title" fill="#60a5fa">Opus 5 (Deep Reasoning Tier)</text>
+    <text x="18" y="48" class="text-sub">Uses: Candidate Brief Generation, Evaluation &amp; Grading</text>
+    <text x="18" y="68" class="text-mono" fill="#93c5fd">Role: High-level architectural &amp; editorial logic</text>
+
+    <g transform="translate(0, 105)">
+      <rect width="450" height="85" class="card-sonnet" />
+      <text x="18" y="28" class="text-title" fill="#34d399">Sonnet 5 (Drafting &amp; Voice Tier)</text>
+      <text x="18" y="48" class="text-sub">Uses: Full Article Drafting, Multi-Platform Renditions</text>
+      <text x="18" y="68" class="text-mono" fill="#6ee7b7">Role: Primary content engine &amp; stylistic editor</text>
+    </g>
+
+    <g transform="translate(0, 215)">
+      <rect width="450" height="85" class="card-haiku" />
+      <text x="18" y="28" class="text-title" fill="#fbbf24">Haiku 4.5 (Fast Utility Tier)</text>
+      <text x="18" y="48" class="text-sub">Uses: Deduplication, Tagging, Schema Validation</text>
+      <text x="18" y="68" class="text-mono" fill="#fde047">Role: High-speed, low-cost utility tasks</text>
+    </g>
+  </g>
+
+  <line x1="210" y1="250" x2="250" y2="250" class="line-solid" />
+  <line x1="520" y1="140" x2="560" y2="140" class="line-solid" />
+  <line x1="520" y1="245" x2="560" y2="245" class="line-solid" />
+  <line x1="520" y1="350" x2="560" y2="350" class="line-solid" />
+</svg>

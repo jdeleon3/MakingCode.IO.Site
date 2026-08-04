@@ -12,7 +12,8 @@
     "preview": "astro preview",
     "pages:dev": "astro build && wrangler pages dev dist --env-file .env --compatibility-date=2026-07-07",
     "check": "astro check",
-    "sync": "astro sync"
+    "sync": "astro sync",
+    "stop": "astro dev stop"
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.2",
