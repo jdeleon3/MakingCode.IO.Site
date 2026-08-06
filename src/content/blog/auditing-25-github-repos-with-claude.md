@@ -4,7 +4,6 @@ description: 'How I used Claude in Chrome to audit 25 repos, spot clutter, and g
 pubDate: 2026-08-04
 heroImage: '../../assets/blog/github_cleanup_hero.png'
 tags: ['github', 'claude', 'ai-tools', 'workflow']
-#draft: true
 ---
 
 My GitHub account had accumulated 25 repositories over several years. It was a mix of active projects, class assignments from my master's coursework, half-finished prototypes, and old tutorial stubs like `helloGit` and `HelloNetlify`. As part of building out this site and deliberately applying AI tools to real engineering workflows, I wanted to audit and organize the account. But manually clicking through 25 repository settings pages to edit descriptions, topics, and visibilities sounded like tedious administrative overhead.
