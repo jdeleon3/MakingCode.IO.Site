@@ -10,7 +10,10 @@
     "dev": "astro dev",
     "build": "astro check && tsc --noEmit -p functions/tsconfig.json && astro build",
     "preview": "astro preview",
-    "pages:dev": "astro build && wrangler pages dev dist --env-file .env --compatibility-date=2026-07-07",
+    "pages:dev": "astro build && wrangler pages dev dist --env-file .env --d1 DB=c185a546-9059-47d8-a48b-248a7532ee47 --compatibility-date=2026-07-07",
+    "db:migrate": "wrangler d1 execute DB --config db/wrangler.d1.jsonc --remote --file db/migrations/0001_comments.sql",
+    "db:migrate:local": "wrangler d1 execute DB --config db/wrangler.d1.jsonc --local --persist-to .wrangler/state --file db/migrations/0001_comments.sql",
+    "db:query": "wrangler d1 execute DB --config db/wrangler.d1.jsonc --local --persist-to .wrangler/state --command",
     "check": "astro check",
     "sync": "astro sync",
     "stop": "astro dev stop"
@@ -19,14 +22,15 @@
     "@astrojs/mdx": "^7.0.2",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
-    "@supabase/supabase-js": "^2.111.0",
     "@tailwindcss/vite": "^4.3.2",
     "astro": "^7.0.6",
+    "sanitize-html": "^2.17.6",
     "tailwindcss": "^4.3.2"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
     "@cloudflare/workers-types": "^5.20260708.1",
+    "@types/sanitize-html": "^2.16.1",
     "typescript": "^6.0.3",
     "wrangler": "^4.108.0"
   }

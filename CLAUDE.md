@@ -51,7 +51,12 @@ copy or content.
 - `npm run dev` — Astro dev server, fast iteration, but **does not run Cloudflare Pages Functions**
   (`functions/api/*`). `/api/submit-contact` and `/api/submit-comment` 404 under plain `dev`.
 - `npm run pages:dev` — builds the site, then serves it (and `functions/`) through Wrangler's Pages
-  emulator. Use this to test the contact form or comments end-to-end locally.
+  emulator, with the D1 binding attached. Use this to test the contact form, comments, or newsletter
+  end-to-end locally.
+- `npm run db:migrate:local` — creates the comments schema in local D1 state. Run once before the
+  first `pages:dev`; local state starts empty and unrelated to production.
+- `npm run db:migrate` — applies the same migration to the **production** D1 database.
+- `npm run db:query "<sql>"` — ad-hoc query against local D1.
 - `npm run build` — `astro check` + a separate `tsc` pass over `functions/` (its own isolated
   `tsconfig.json` — merging it with the root one breaks DOM typing globally, see the
   `securing-a-contact-pipeline` blog post) + `astro build`. Run before considering any change done.
@@ -64,13 +69,35 @@ separate deploy step — **push to master is publish.** That makes the git safet
 important here, not less: never push without being explicitly asked, even when everything else checks
 out.
 
-## Comments & Supabase
+## Comments & the database
 
-- Submissions go through `functions/api/submit-comment.ts` → Supabase, using only the public anon key
-  — RLS restricts it to inserting `pending` rows and reading `approved` ones. No service-role key
-  exists anywhere in this flow. Full design and as-built deltas: `docs/design/comments-system.md`.
-- Moderation is manual, via the Supabase table editor (flip `status` from `pending` to
-  `approved`/`rejected`). No admin UI exists in this repo.
+- **Cloudflare D1, not Supabase.** Migrated 2026-08-08 because Supabase pauses free-tier projects for
+  inactivity. Database `makingcode-io-comments` (`c185a546-9059-47d8-a48b-248a7532ee47`), bound to
+  the Pages project as `DB`. Full design and as-built deltas: `docs/design/comments-system.md`.
+- Writes go through `functions/api/submit-comment.ts`; reads through `functions/api/comments.ts`.
+  There is no public database client — the browser only ever talks to those endpoints.
+- Moderation is a real page now: `/admin`, served by `functions/admin/index.ts`, protected by a
+  **Cloudflare Access** self-hosted application (Path `admin`; no auth code lives in this repo).
+  `functions/_lib/access.ts` re-verifies the Access JWT so the route fails closed if that policy is
+  ever removed. GET and POST share the one path on purpose — Access matches paths exactly unless
+  wildcarded, so splitting them would need two applications. Don't add `/admin/*` sub-routes without
+  revisiting the Access config.
+- Schema changes go in `db/migrations/`, applied with the `db:migrate*` scripts.
+
+## Never add a wrangler.toml to this repo
+
+Cloudflare Pages treats a root `wrangler.toml`/`wrangler.jsonc` containing `pages_build_output_dir`
+as the source of truth for the project, which makes every dashboard-set variable **read-only** —
+stranding `TURNSTILE_SECRET_KEY`, `JWT_SIGNING_SECRET`, `N8N_WEBHOOK_URL`, and the Resend keys.
+Bindings go in through the dashboard; local dev passes them as `wrangler pages dev` flags.
+`db/wrangler.d1.jsonc` exists only for `wrangler d1` CLI commands, is deliberately not at the repo
+root, and deliberately omits `pages_build_output_dir`.
+
+## Newsletter
+
+Resend, with stateless double opt-in — there is no subscriber table anywhere; the signed
+confirmation link is the only state, and the contact is created in Resend only when it's clicked.
+Sending is manual per issue in the Resend dashboard. Design: `docs/design/newsletter.md`.
 
 ## Agents & skills for this workflow
 

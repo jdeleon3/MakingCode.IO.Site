@@ -1,0 +1,132 @@
+---
+interface Props {
+  /** Distinguishes the Turnstile widget when more than one form shares a page. */
+  variant?: string;
+}
+
+const { variant = 'post' } = Astro.props;
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
+const formId = `subscribe-form-${variant}`;
+const statusId = `subscribe-status-${variant}`;
+const submitId = `subscribe-submit-${variant}`;
+const emailId = `subscribe-email-${variant}`;
+const honeypotId = `subscribe-website-${variant}`;
+const turnstileWidgetId = `turnstile-subscribe-${variant}`;
+---
+
+<section class="mx-auto max-w-3xl px-6">
+  <div
+    class="flex flex-col gap-5 border border-(--color-border) bg-(--color-surface-raised) p-8"
+    data-subscribe
+    data-widget={`#${turnstileWidgetId}`}
+  >
+    <div class="flex flex-col gap-2">
+      <span class="label-mono text-xs text-(--color-accent)">By email</span>
+      <h2 class="font-display text-2xl font-semibold text-(--color-ink)">
+        New posts, sent when I publish one.
+      </h2>
+      <p class="text-sm text-(--color-ink-muted)">
+        No separate content, no schedule to keep &mdash; the same field notes, in your inbox instead of
+        your feed reader. I&rsquo;ll email you a link to confirm the address first. Every issue has an
+        unsubscribe link, and <a href="/rss.xml" class="text-(--color-accent) hover:underline">the RSS
+        feed</a> works if you&rsquo;d rather not hand over an address at all.
+      </p>
+    </div>
+
+    <form id={formId} class="flex flex-col gap-4 sm:flex-row sm:items-start" novalidate>
+      <div class="flex flex-1 flex-col gap-2">
+        <label for={emailId} class="sr-only">Email</label>
+        <input
+          id={emailId}
+          name="email"
+          type="email"
+          required
+          maxlength="200"
+          autocomplete="email"
+          placeholder="you@example.com"
+          class="w-full border border-(--color-border) bg-(--color-surface) px-4 py-3 text-sm text-(--color-ink) outline-none transition-colors focus:border-(--color-accent)"
+        />
+      </div>
+
+      {/* Honeypot: hidden from real visitors, bots that fill every field will trip it. */}
+      <div class="absolute -left-[9999px]" aria-hidden="true">
+        <label for={honeypotId}>Website</label>
+        <input id={honeypotId} name="website" type="text" tabindex="-1" autocomplete="off" />
+      </div>
+
+      <button
+        id={submitId}
+        type="submit"
+        class="label-mono bg-(--color-accent) px-6 py-3 text-xs text-(--color-surface) transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        Send the confirmation
+      </button>
+    </form>
+
+    <div id={turnstileWidgetId} class="cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="dark"></div>
+
+    <p id={statusId} role="status" aria-live="polite" class="label-mono text-xs" data-state="idle"></p>
+  </div>
+</section>
+
+<script>
+  type FormState = 'idle' | 'pending' | 'success' | 'error';
+
+  for (const container of document.querySelectorAll<HTMLElement>('[data-subscribe]')) {
+    const form = container.querySelector('form');
+    const statusEl = container.querySelector<HTMLElement>('[role="status"]');
+    const submitBtn = container.querySelector<HTMLButtonElement>('button[type="submit"]');
+    const turnstileWidget = container.dataset.widget ?? '';
+
+    if (!form || !submitBtn) continue;
+
+    const setStatus = (state: FormState, message: string) => {
+      if (!statusEl) return;
+      statusEl.textContent = message;
+      statusEl.dataset.state = state;
+      statusEl.classList.toggle('text-(--color-accent)', state === 'success' || state === 'pending');
+      statusEl.classList.toggle('text-red-400', state === 'error');
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(form);
+      const turnstileToken = formData.get('cf-turnstile-response');
+
+      if (!turnstileToken) {
+        setStatus('error', 'Please complete the human verification challenge.');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      setStatus('pending', 'Sending…');
+
+      try {
+        const response = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            email: formData.get('email'),
+            turnstileToken,
+            website: formData.get('website'),
+          }),
+        });
+
+        const result = (await response.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+
+        if (!response.ok || !result.ok) {
+          throw new Error(typeof result.error === 'string' ? result.error : 'Something went wrong. Please try again.');
+        }
+
+        setStatus('success', 'Check your inbox — the confirmation link expires in three days.');
+        form.reset();
+      } catch (error) {
+        setStatus('error', error instanceof Error ? error.message : 'Something went wrong. Please try again.');
+      } finally {
+        window.turnstile?.reset(turnstileWidget);
+        submitBtn.disabled = false;
+      }
+    });
+  }
+</script>

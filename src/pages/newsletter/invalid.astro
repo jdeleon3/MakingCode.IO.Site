@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { CONTACT_PATH } from '../../consts';
+---
+
+<BaseLayout
+  title="Confirmation link didn't work"
+  description="That confirmation link has expired or is no longer valid."
+>
+  <section class="mx-auto max-w-xl px-6 py-32">
+    <span class="label-mono text-xs text-(--color-accent)">Link expired</span>
+    <h1 class="font-display mb-4 mt-3 text-3xl font-semibold text-(--color-ink)">
+      That link didn&rsquo;t work.
+    </h1>
+    <p class="mb-8 text-(--color-ink-muted)">
+      Confirmation links expire after three days, and each one only works for the address it was sent
+      to. Subscribe again from the bottom of any post and I&rsquo;ll send a fresh one. If it fails a
+      second time, <a href={CONTACT_PATH} class="text-(--color-accent) hover:underline">tell me</a>
+      &mdash; that&rsquo;s a bug on my end, not yours.
+    </p>
+    <a
+      href="/blog/"
+      class="label-mono inline-block border border-(--color-border) px-6 py-3 text-xs text-(--color-ink) transition-colors hover:border-(--color-accent) hover:text-(--color-accent)"
+    >
+      Back to the blog
+    </a>
+  </section>
+</BaseLayout>

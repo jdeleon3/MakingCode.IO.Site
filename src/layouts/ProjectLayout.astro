@@ -3,6 +3,7 @@ import type { ImageMetadata } from 'astro';
 import { Image } from 'astro:assets';
 import BaseLayout from './BaseLayout.astro';
 import PostMeta from '../components/PostMeta.astro';
+import SubscribeForm from '../components/SubscribeForm.astro';
 
 interface Props {
   title: string;
@@ -63,4 +64,6 @@ const {
       <slot />
     </div>
   </article>
+  <SubscribeForm variant="project" />
+  <div class="pb-24"></div>
 </BaseLayout>

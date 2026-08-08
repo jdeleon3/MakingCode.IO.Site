@@ -14,10 +14,17 @@ calling it done. Don't duplicate the brief's reasoning here — just the checks.
    ```
    grep -inE "delve|dive into|deep dive|unlock|unleash|game-changer|revolutionize|harness the power|seamless|robust|cutting-edge|leverage|elevate your|supercharge|transformative|in today's|it's important to note|at the end of the day|when it comes to|navigate the complexities|testament to|not just .* but|it's not about" <file>
    ```
-3. **Funnel check** — does this CTA read as a course/newsletter/signup funnel, even implicitly? If the
-   page isn't `/work-with-me/` or `/contact/`, the only acceptable CTA is a variant of "reply and tell
-   me what worked for you" (§9). Sales-scoping-call language ("structural scoping conversation") is
-   confined to `/work-with-me/` only.
+3. **Funnel check** — does this CTA read as a course/signup funnel, even implicitly? If the page isn't
+   `/work-with-me/` or `/contact/`, the only acceptable CTA is a variant of "reply and tell me what
+   worked for you" (§9). Sales-scoping-call language ("structural scoping conversation") is confined
+   to `/work-with-me/` only.
+
+   **Amended 2026-08-08:** `SubscribeForm.astro` is a deliberate, standing exception — it ships at
+   the end of every blog post and project writeup. It is not a blanket license for newsletter
+   marketing copy; it passes because it holds the line this rule protects. Judge any change to it
+   against those constraints: no separate content promised beyond the posts themselves, no scarcity
+   or "never miss," no implied schedule, and the RSS feed offered as the no-email alternative in the
+   same paragraph. Copy that drops those is a violation again.
 4. **Specificity check** (§6/§8) — every claim has a number, version, dataset size, or named project
    attached. "My guess is" prefixes anything extrapolated, with what would change your mind stated
    next to it. No claim implies production use of something that was a class or side project.

@@ -4,6 +4,10 @@ dist/
 # generated types
 .astro/
 
+# wrangler build artifacts and local Miniflare state. The local D1 database lives here and holds
+# real comment rows (including author emails) once you've tested through the form.
+.wrangler/
+
 # dependencies
 node_modules/
 

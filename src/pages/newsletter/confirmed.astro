@@ -1,0 +1,25 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Subscription confirmed"
+  description="Your email is confirmed — new MakingCode posts will arrive as they publish."
+>
+  <section class="mx-auto max-w-xl px-6 py-32">
+    <span class="label-mono text-xs text-(--color-accent)">Confirmed</span>
+    <h1 class="font-display mb-4 mt-3 text-3xl font-semibold text-(--color-ink)">
+      You&rsquo;re on the list.
+    </h1>
+    <p class="mb-8 text-(--color-ink-muted)">
+      Next post goes to that address when it publishes. Nothing else does &mdash; no separate
+      newsletter, no schedule. Every issue carries an unsubscribe link if it stops being useful.
+    </p>
+    <a
+      href="/blog/"
+      class="label-mono inline-block bg-(--color-accent) px-6 py-3 text-xs text-(--color-surface) transition-transform hover:-translate-y-0.5"
+    >
+      Read the archive
+    </a>
+  </section>
+</BaseLayout>

@@ -5,6 +5,9 @@ interface Props {
 
 const { postSlug } = Astro.props;
 const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
+// Each Turnstile widget on the page needs its own id — blog posts render this one alongside the
+// newsletter form's, and an un-targeted turnstile.reset() would reset whichever rendered last.
+const turnstileWidgetId = 'turnstile-comment';
 ---
 
 <section
@@ -71,7 +74,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
       <input id="comment-website" name="website" type="text" tabindex="-1" autocomplete="off" />
     </div>
 
-    <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="dark"></div>
+    <div id={turnstileWidgetId} class="cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="dark"></div>
 
     <button
       id="comment-form-submit"
@@ -85,17 +88,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
   </form>
 </section>
 
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-
 <script>
-  import { createClient } from '@supabase/supabase-js';
-
-  declare global {
-    interface Window {
-      turnstile?: { reset: (widgetId?: string) => void };
-    }
-  }
-
   interface CommentRow {
     id: string;
     author_name: string;
@@ -105,15 +98,12 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
   const section = document.getElementById('comments');
   const postSlug = section?.dataset.postSlug ?? '';
+  const turnstileWidget = '#turnstile-comment';
   const listEl = document.getElementById('comments-list');
   const emptyEl = document.getElementById('comments-empty');
   const form = document.getElementById('comment-form');
   const statusEl = document.getElementById('comment-form-status');
   const submitBtn = document.getElementById('comment-form-submit') as HTMLButtonElement | null;
-
-  const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL as string | undefined;
-  const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string | undefined;
-  const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
   function formatDate(iso: string): string {
     return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
@@ -151,27 +141,26 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
   }
 
   async function loadComments() {
-    if (!supabase || !postSlug || !listEl) return;
+    if (!postSlug || !listEl) return;
 
-    const { data, error } = await supabase
-      .from('comments')
-      .select('id, author_name, body, created_at')
-      .eq('post_slug', postSlug)
-      .eq('status', 'approved')
-      .order('created_at', { ascending: true });
-
-    if (error) {
-      console.error('Failed to load comments:', error.message);
+    let comments: CommentRow[];
+    try {
+      const response = await fetch(`/api/comments?slug=${encodeURIComponent(postSlug)}`);
+      const result = (await response.json()) as { ok?: boolean; comments?: CommentRow[]; error?: string };
+      if (!response.ok || !result.ok) throw new Error(result.error ?? `HTTP ${response.status}`);
+      comments = result.comments ?? [];
+    } catch (error) {
+      console.error('Failed to load comments:', error);
       return;
     }
 
-    if (!data || data.length === 0) {
+    if (comments.length === 0) {
       emptyEl?.removeAttribute('hidden');
       return;
     }
 
     emptyEl?.setAttribute('hidden', '');
-    for (const comment of data as CommentRow[]) {
+    for (const comment of comments) {
       listEl.appendChild(renderComment(comment));
     }
   }
@@ -235,10 +224,10 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
         ),
       );
       form.reset();
-      window.turnstile?.reset();
+      window.turnstile?.reset(turnstileWidget);
     } catch (error) {
       setStatus('error', error instanceof Error ? error.message : 'Something went wrong. Please try again.');
-      window.turnstile?.reset();
+      window.turnstile?.reset(turnstileWidget);
     } finally {
       submitBtn.disabled = false;
     }

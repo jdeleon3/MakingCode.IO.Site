@@ -3,154 +3,164 @@
 Companion to `docs/migration-plan.md` Phase 3. The brief's only CTA is "reply and tell me what
 actually worked for you" — that needs a real reply surface on blog posts. This follows the existing
 `functions/api/submit-contact.ts` pattern (Turnstile-verify → validate → forward) as closely as
-possible, swapping the n8n forward for a Supabase insert.
+possible.
 
 **As-built note (2026-07-29):** this doc was written before implementation and originally called for
-a service-role key and Cloudflare-KV rate limiting. Neither shipped in v1 — see the two callouts below
+a service-role key and Cloudflare-KV rate limiting. Neither shipped in v1 — see the callouts below
 for what changed and why. The rest of the design (schema, moderation model, display behavior) shipped
 as planned.
 
-- **Live project:** Supabase project `makingcode-io-comments` (ref `ggwmwuhrbntxagaanmjq`, `us-east-1`,
-  free tier), under the `MakingCode.IO` org. Created via the Supabase MCP tools with explicit cost
-  confirmation ($0/month) before provisioning.
+**As-built note (2026-08-08) — datastore changed.** The system moved off hosted Supabase to
+Cloudflare D1. Supabase pauses free-tier projects for inactivity, and a pause would have silently
+broken the site's primary blog CTA. Migration cost was near zero: the `comments` table held **zero
+rows** at cutover, so this was a schema recreate and a code swap, not a data migration. Sections
+below are rewritten as-built; the Supabase rationale is preserved where it explains a decision that
+still stands.
 
-## Why Supabase + Turnstile over alternatives
+- **Live datastore:** Cloudflare D1 database `makingcode-io-comments`
+  (`c185a546-9059-47d8-a48b-248a7532ee47`, ENAM), bound to the Pages project as `DB`.
+- **Retired:** Supabase project `makingcode-io-comments` (ref `ggwmwuhrbntxagaanmjq`). Deleting it is
+  a manual step, deliberately left to a human.
 
-- **Supabase** is already the stack's database (used on the ordering-site project per the brief) —
-  no new vendor, and building this out is itself a legitimate build-log post (§1 standing: "directed
-  an AI-assisted build... configured the self-hosted n8n automation").
-- **Turnstile** is already wired into this repo (`ContactForm.astro`, `submit-contact.ts`) — reusing
-  the site key/secret pattern means no new integration surface, just a second endpoint.
-- Rejected: Giscus (requires readers to have GitHub accounts — friction for a broader audience than
-  this repo's own contributors) and off-site reply (email/social) — doesn't give the "reply" CTA a
-  visible home on the post itself, which is the point.
+## Why D1
+
+- **Same platform as everything else.** Pages Functions already run here; a D1 binding is one
+  dashboard entry and no new vendor, no new key, no new outbound dependency at request time.
+- **It does not pause.** That was the whole forcing function.
+- **It removed a client-side dependency rather than porting one.** Under Supabase the browser talked
+  to the database directly with the anon key, safe only because RLS restricted it. D1 has no public
+  client at all, so the read path became `/api/comments` — the Supabase SDK left the browser bundle
+  and the key left the shipped JS.
+
+Turnstile stays for the same reason it was chosen originally: already wired into this repo, no new
+integration surface. Rejected alternatives are unchanged — Giscus (requires readers to have GitHub
+accounts) and off-site reply (doesn't give the CTA a home on the post).
 
 ## Data model
 
-New Supabase table, `comments`:
+D1 (SQLite). Migration: `db/migrations/0001_comments.sql`.
 
 | column | type | notes |
 |---|---|---|
-| `id` | `uuid` (pk, default `gen_random_uuid()`) | |
-| `post_slug` | `text`, not null | matches the blog collection's `id` (e.g. `securing-a-contact-pipeline-cloudflare-turnstile-n8n`) |
-| `author_name` | `text`, not null, max 100 | |
-| `author_email` | `text`, not null, max 200 | **never displayed publicly** — stored for spam triage/replies only |
-| `body` | `text`, not null, max 2000 | |
+| `id` | `text` (pk) | `crypto.randomUUID()`, generated in the Function |
+| `post_slug` | `text`, not null | matches the blog collection's `id` |
+| `author_name` | `text`, not null, ≤100 | |
+| `author_email` | `text`, not null, ≤200 | **never displayed publicly** — spam triage/replies only |
+| `body` | `text`, not null, ≤2000 | |
 | `status` | `text`, not null, default `'pending'` | `pending` \| `approved` \| `rejected` |
-| `ip_hash` | `text` | SHA-256 of `CF-Connecting-IP`, salted — for rate-limiting/abuse review, not raw IP storage |
-| `created_at` | `timestamptz`, default `now()` | |
+| `ip_hash` | `text` | salted SHA-256 of `CF-Connecting-IP`, never the raw IP |
+| `created_at` | `text`, not null | ISO-8601, written by the Function |
+| `moderated_at` | `text` | set when a decision is applied |
 
-**Changed from the original plan:** the Supabase MCP tools deliberately don't expose service-role
-keys (they only hand out publishable/anon keys) — reasonable, since a service-role key bypasses RLS
-entirely and shouldn't be mintable by a tool call. Rather than route around that, the design changed
-to not need one: the `anon` key gets an `INSERT` policy scoped by `WITH CHECK (status = 'pending')`.
-A client (or the Cloudflare Function) can only ever insert rows already forced to `pending` — it
-cannot set `status = 'approved'` no matter what it sends, because the check runs against the row
-being written, not client input. The same `anon`/publishable key is safe to use client-side (for
-reading `approved` rows) and inside the Cloudflare Function (for writing `pending` rows). No
-service-role secret exists anywhere in this flow.
+**Changed from the Postgres original:** the RLS policies are gone, because there is nothing left for
+them to restrict. The old design leaned on `WITH CHECK (status = 'pending')` so that a browser
+holding the anon key could not insert an already-approved row. With D1 the browser cannot reach the
+database at all — `submit-comment.ts` is the only writer and it hard-codes the `'pending'` literal
+into the INSERT. The length limits and the status enum carried over as SQLite `CHECK` constraints, so
+the database still refuses malformed rows even if validation in the Function is ever bypassed.
 
-`ip_hash` remains in the schema for a future rate-limiting pass (see below) but is not populated by
-v1 — the column is nullable and simply unused for now.
+`ip_hash` is now populated (it was carried unused in v1), salted with `JWT_SIGNING_SECRET` rather
+than introducing another secret. It is still only groundwork for the deferred rate-limiting pass.
 
-```sql
-create table comments (
-  id uuid primary key default gen_random_uuid(),
-  post_slug text not null,
-  author_name text not null check (char_length(author_name) <= 100),
-  author_email text not null check (char_length(author_email) <= 200),
-  body text not null check (char_length(body) <= 2000),
-  status text not null default 'pending' check (status in ('pending','approved','rejected')),
-  ip_hash text,
-  created_at timestamptz not null default now()
-);
+`moderated_at` is new — it orders the admin page's "recently moderated" list.
 
-create index comments_post_slug_status_idx on comments (post_slug, status);
+## API
 
-alter table comments enable row level security;
-
-create policy "public can read approved comments"
-  on comments for select
-  using (status = 'approved');
-
-create policy "public can insert pending comments"
-  on comments for insert
-  with check (status = 'pending');
-```
-`get_advisors(type: 'security')` on the live project returns zero lints against this schema.
-
-## API: `functions/api/submit-comment.ts`
-
-Structurally mirrors `submit-contact.ts`:
+`functions/api/submit-comment.ts` — write path, structurally unchanged from v1:
 
 ```
-Browser (Turnstile widget + honeypot field + comment form on BlogPostLayout)
+Browser (Turnstile widget + honeypot + comment form on BlogPostLayout)
   → POST /api/submit-comment
-      1. parse + validate payload (postSlug, authorName, authorEmail, body, turnstileToken, website)
-      2. honeypot check — if `website` is non-empty, fake a 200 success and drop the submission
-      3. verify Turnstile token (reuse the verifyTurnstile() pattern from submit-contact.ts)
-      4. insert row into Supabase (anon key) with status='pending'
+      1. parse + validate payload
+      2. honeypot check — if `website` is non-empty, fake a 200 and drop the submission
+      3. verify Turnstile token
+      4. INSERT into D1 with status='pending', ip_hash populated
+      5. waitUntil() a Resend notification email — best-effort, never blocks or fails the insert
   → 200 { ok: true, status: 'pending' }   (never auto-approved)
 ```
 
-Env additions (`Env` interface + Cloudflare Pages secrets) — as implemented in
-`functions/api/submit-comment.ts`:
+`functions/api/comments.ts` — **new**, the public read path. `GET /api/comments?slug=<id>` returns
+approved comments as JSON, cached 60s. Selects four columns only; `author_email` and `ip_hash` cannot
+leak through a query that never asks for them.
 
-```ts
-interface Env {
-  TURNSTILE_SECRET_KEY: string;      // existing
-  PUBLIC_SUPABASE_URL: string;       // new — safe to expose, RLS does the restricting
-  PUBLIC_SUPABASE_ANON_KEY: string;  // new — same key used client-side in Comments.astro
-}
-```
+Shared helpers moved to `functions/_lib/` (underscore-prefixed so Pages doesn't route them):
+`http.ts` (`json`), `turnstile.ts` (`verifyTurnstile`), `crypto.ts` (HMAC + salted hash, extracted
+from `submit-contact.ts`), `access.ts`, `resend.ts`, `optin.ts`.
 
-Validation rules (mirror `parseContactPayload`): trim all fields, reject empty, enforce max lengths
-from the table above, basic email pattern check. `post_slug` is accepted as-is (no build-time
-allowlist) — a junk slug can never render anywhere, since `Comments.astro` only ever queries for the
-exact slug of the post it's mounted on.
+Env: `TURNSTILE_SECRET_KEY`, `JWT_SIGNING_SECRET`, and the `DB` binding. The two
+`PUBLIC_SUPABASE_*` vars are retired.
 
-## Spam controls (v1: no Cloudflare KV)
+## Spam controls (still no Cloudflare KV)
 
-Turnstile handles the bot problem for a single request. A honeypot field (`website`, visually hidden,
-`tabindex="-1"`, never seen or filled by a real visitor) catches the class of bot that fills every
-input blindly, without adding a database round-trip or a new secret. When triggered, the function logs
-a warning server-side and returns the same `200 { ok: true }` a real submission gets — a spam bot
-gets no signal it was caught, so it has no error response to adapt against.
+Unchanged from v1. Turnstile handles the bot problem for a single request; the honeypot (`website`,
+visually hidden, `tabindex="-1"`) catches bots that fill every input blindly, and returns the same
+`200 { ok: true }` a real submission gets so a bot gets no signal it was caught.
 
-**Deliberately deferred:** per-IP rate limiting via Cloudflare KV. It needs a KV namespace and a
-binding wired into the live Pages project, and no tool available in this session can set Pages
-production bindings — that's a dashboard/CLI step for whoever holds Cloudflare access. The `ip_hash`
-column already exists in the schema for when that lands; until then, Turnstile + the honeypot are the
-only defenses, which is the same protection level the existing contact form has always run on.
+**Still deferred:** per-IP rate limiting via Cloudflare KV. `ip_hash` is now populated, so the data
+side is ready; it still needs a KV namespace and binding wired into the live Pages project.
 
 ## Moderation
 
-**v1: manual, via the Supabase table editor.** No admin UI gets built for this migration — flip
-`status` from `pending` to `approved`/`rejected` directly in Supabase's dashboard. This is the right
-tradeoff for a low-volume personal blog and avoids building auth/admin surface area that isn't the
-point of this migration. Revisit only if comment volume makes manual moderation impractical.
+**Superseded.** v1 moderated through the Supabase table editor. D1 has no equivalent dashboard, and
+the CLI was rejected as the primary path — so `/admin` is now a real page:
+
+- `functions/admin/index.ts` — the whole thing. `onRequestGet` renders the pending queue with
+  Approve/Reject buttons, plus the 25 most recently moderated for context and one-click reversal;
+  `onRequestPost` applies a decision and 303s back so a refresh doesn't resubmit. Self-contained
+  HTML, no framework, `noindex`.
+- `functions/admin/_shared.ts` — the `requireAdmin` gate, applied to both handlers.
+
+**GET and POST deliberately share one path.** Access matches application paths exactly unless
+wildcarded: a Path of `admin` covers `/admin` only, and `admin/*` covers `/admin/moderate` but *not*
+`/admin`. A separate `/admin/moderate` route would therefore need either two Access applications or
+a wildcard that silently leaves one of them uncovered. One route means one path to protect and no
+way to get the policy subtly wrong.
+
+**Auth is Cloudflare Access, and this repo contains no auth code.** Configure it as
+**Self-hosted** (not SaaS — that type is for third-party apps like Salesforce), with public hostname
+`makingcode.io` and Path `admin`, plus one Allow policy for the owner's email. Access authenticates
+at the edge and never forwards an unauthenticated request to the Function.
+
+`functions/_lib/access.ts` is defense in depth, not the gate: it verifies the
+`Cf-Access-Jwt-Assertion` header against the team's JWKS, checking signature, `iss`, `aud`, and
+`exp`. If the Access application is ever deleted, its policy loosened, or its path pattern edited so
+`/admin` falls outside it, these routes return 403 instead of quietly becoming a public
+comment-moderation panel. Verified locally: requests arriving with a non-localhost `Host` and no
+assertion get 403 on both routes.
+
+`ADMIN_DEV_BYPASS=true` skips verification for local development, and only when the request host is
+*also* localhost — so setting it in Pages by mistake cannot open up the deployed site. It still must
+never be set there.
 
 ## Display: `Comments.astro`
 
-- Server-rendered (or fetched at request time — the current site is `output: 'static'` per the
-  contact-pipeline post, so this needs either a per-post SSR route or a client-side fetch against a
-  public read endpoint hitting Supabase directly with the `anon` key, which RLS restricts to
-  `approved` rows only). Recommend: client-side fetch using the Supabase JS client with the public
-  `anon` key — RLS makes this safe (`anon` can only ever see `approved` rows), and it avoids a
-  static→SSR conversion for the whole blog route.
+- Client-side fetch against `/api/comments?slug=`, replacing the direct Supabase query. Same
+  reasoning as before — it avoids converting the whole blog route from static to SSR — but now
+  without shipping a database client or key to the browser.
 - Renders `author_name`, `body`, `created_at` — never `author_email` or `ip_hash`.
-- Empty state: no funnel language — something like "No replies yet. Be the first," consistent with
-  §9's CTA phrasing, not a generic "no comments" placeholder.
-- Submitted-but-pending state: after a successful POST, show the visitor their own comment locally
-  (optimistic, client-state only) with a "pending moderation" label — don't re-fetch from Supabase
-  (it won't be there yet) and don't imply it's already public.
+- Empty state: "No replies yet. Be the first."
+- Submitted-but-pending: the visitor sees their own comment locally with a "pending moderation"
+  label, client-state only.
+- The Turnstile widget now has an explicit id (`#turnstile-comment`) and `turnstile.reset()` targets
+  it. Blog posts render two widgets since the newsletter form landed, and an un-targeted reset hits
+  whichever rendered last.
 
-## Acceptance criteria (ties to migration-plan.md Phase 3)
+## Local development
 
-- Submitting the form inserts a `pending` row in Supabase — confirmed via dashboard, not inferred.
-- A second Supabase `anon`-key query cannot read `pending`/`rejected` rows (RLS test — enforced by the
-  `select` policy; no separate test needed since there is no broader-access key in play).
-- Filling the honeypot field returns a `200 { ok: true }` without a row appearing in Supabase.
-- An approved comment renders on the correct post only (`post_slug` scoping verified with two posts).
-- **Follow-up, not a v1 blocker:** per-IP rate limiting via Cloudflare KV once bindings can be wired
-  into the live Pages project.
+`npm run pages:dev` passes `--d1 DB=<id>`. Local D1 state is separate from production and starts
+empty — run `npm run db:migrate:local` once to create the schema. Both `db:*` scripts point at
+`db/wrangler.d1.jsonc` and pass `--persist-to .wrangler/state`; without that flag wrangler resolves
+local state relative to the *config file's* directory and the schema lands in `db/.wrangler/`, where
+`wrangler pages dev` will never find it.
+
+## Acceptance criteria — verified 2026-08-08
+
+- Submitting the form inserts a `pending` row in D1 (confirmed by querying the table, not inferred).
+- `/api/comments?slug=` returns `[]` while that comment is pending.
+- Filling the honeypot returns `200 { ok: true }` with no row written (table held exactly one row
+  after both submissions).
+- Approving through `/admin` flips the row and the comment appears in the public read, with
+  `author_email` absent from the response.
+- Both `/admin` handlers (GET and POST) return 403 when the request doesn't come from localhost and
+  carries no Access assertion.
+- **Follow-up, not a blocker:** per-IP rate limiting via Cloudflare KV.

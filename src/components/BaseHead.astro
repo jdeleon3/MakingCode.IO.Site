@@ -50,6 +50,23 @@ const umamiWebsiteId = import.meta.env.PUBLIC_UMAMI_WEBSITE_ID;
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={new URL(image, Astro.url)} />
 
+<!--
+  Turnstile loader, centralized here rather than emitted per form: blog posts now render two widgets
+  (newsletter + comments) and duplicate api.js tags would fetch and initialize the script twice.
+  Injected only when the page actually contains a widget, so the home page, listings, and About don't
+  pull in a third-party script they have no use for.
+-->
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!document.querySelector('.cf-turnstile')) return;
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+  });
+</script>
+
 <!-- Umami Analytics (production only) -->
 {isProd && umamiUrl && umamiWebsiteId && (
   <script

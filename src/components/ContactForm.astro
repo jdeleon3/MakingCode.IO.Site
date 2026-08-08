@@ -58,7 +58,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
       ></textarea>
     </div>
 
-    <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="dark"></div>
+    <div id="turnstile-contact" class="cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="dark"></div>
 
     <button
       id="contact-form-submit"
@@ -72,19 +72,10 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
   </form>
 </section>
 
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-
 <script>
   type FormState = 'idle' | 'pending' | 'success' | 'error';
 
-  declare global {
-    interface Window {
-      turnstile?: {
-        reset: (widgetId?: string) => void;
-      };
-    }
-  }
-
+  const turnstileWidget = '#turnstile-contact';
   const form = document.getElementById('contact-form');
   const statusEl = document.getElementById('contact-form-status');
   const submitBtn = document.getElementById('contact-form-submit') as HTMLButtonElement | null;
@@ -132,10 +123,10 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
       setStatus('success', "Message sent — I'll reply within one business day.");
       form.reset();
-      window.turnstile?.reset();
+      window.turnstile?.reset(turnstileWidget);
     } catch (error) {
       setStatus('error', error instanceof Error ? error.message : 'Something went wrong. Please try again.');
-      window.turnstile?.reset();
+      window.turnstile?.reset(turnstileWidget);
     } finally {
       submitBtn.disabled = false;
     }

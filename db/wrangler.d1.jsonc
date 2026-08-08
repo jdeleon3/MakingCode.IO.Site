@@ -1,0 +1,23 @@
+// Config for `wrangler d1` CLI commands ONLY. Use the npm scripts (`db:migrate`, `db:migrate:local`,
+// `db:query`) rather than invoking wrangler by hand — they carry two flags that are easy to forget:
+//
+//   --config db/wrangler.d1.jsonc   this file isn't at the default location, on purpose (below)
+//   --persist-to .wrangler/state    local state resolves relative to the CONFIG file's directory,
+//                                   so without this the schema lands in db/.wrangler/ and
+//                                   `wrangler pages dev` never sees it
+//
+// Deliberately NOT at the repo root and deliberately without `pages_build_output_dir`. A
+// wrangler.toml/jsonc at the root would become the source of truth for the Pages project and turn
+// every dashboard-set variable read-only — stranding TURNSTILE_SECRET_KEY, JWT_SIGNING_SECRET, and
+// N8N_WEBHOOK_URL. Cloudflare Pages never looks here.
+{
+  "name": "makingcode-io-comments-cli",
+  "compatibility_date": "2026-07-07",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "makingcode-io-comments",
+      "database_id": "c185a546-9059-47d8-a48b-248a7532ee47"
+    }
+  ]
+}
